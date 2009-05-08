@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+
+	Copyright Michael B. E. Rickert 2009
+	Distributed under the Boost Software License, Version 1.0.
+	(See accompanying file ..\..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
+	
+-->
+<uirc-settings
+	version="0.0"
+>	
+	<defaults
+		nick="Guest"
+		user="uberirc"
+	/>
+	<server
+		name="AfterNet"
+		url ="irc.afternet.org"
+		nick="Guest"
+		user="uberirc"
+		auto="connect,reconnect"
+	>
+		<channel
+			name="#gamedev"
+			auto="join,rejoin"
+			shortcut="Ctrl+1"
+		/>
+		<channel
+			name="#graphicsdev"
+			auto="join,rejoin"
+			shortcut="Ctrl+2"
+		/>
+	</server>
+</uirc-settings>

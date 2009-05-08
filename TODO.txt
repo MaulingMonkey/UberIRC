@@ -1,0 +1,6 @@
+Redo Industry.FX.Font so we can get /semiignore
+Users lists -> Caching user/hostname info + deffered commands (e.g. +b and kick on hostname determination)
+UNDO/REDO
+Uparrow
+I want to click/open URLs :(
+Refactor everything
