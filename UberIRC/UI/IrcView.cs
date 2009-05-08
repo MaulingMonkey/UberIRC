@@ -17,10 +17,10 @@ using UberIRC.NET;
 
 namespace UberIRC {
 	public partial class IrcView : Form, IDisposable {
+		Settings Settings;
 		Dictionary<IrcChannelID,Channel> Views;
-		Dictionary<Keys     ,Action> Shortcuts;
-		delegate void Command( string args );
-		Dictionary<String   ,Command> Commands;
+		Dictionary<Keys        ,Action > Shortcuts;
+		Dictionary<String      ,Command> Commands;
 		
 		void IDisposable.Dispose() {
 			base.Dispose();
@@ -28,6 +28,9 @@ namespace UberIRC {
 		}
 
 		public IrcView( Settings settings ) {
+			Settings = settings;
+			Settings.Inject(this);
+
 			Views = new Dictionary<IrcChannelID,Channel>();
 
 			irc = new Irc(settings);
@@ -79,18 +82,9 @@ namespace UberIRC {
 				, { "o/"  , rest => SendMessage("/o/ "+rest) }
 				, { "kick", Kick }
 				, { "mode", ChangeModes }
-				, { "google", Google }
 				};
-		}
 
-		void Google( string keywords ) {
-			var url = "http://www.google.com/search?q="+HttpUtility.UrlEncode(keywords);
-			SendAction( "googles " + url );
-			Process process = new Process();
-			process.StartInfo.FileName = "rundll32.exe";
-			process.StartInfo.Arguments = "url.dll,FileProtocolHandler " + url;
-			process.StartInfo.UseShellExecute = true;
-			process.Start();
+			foreach ( var command in Settings.Commands ) Commands.Add( command.Key, command.Value );
 		}
 
 		void Cut() {

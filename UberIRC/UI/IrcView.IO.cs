@@ -96,6 +96,13 @@ namespace UberIRC {
 			SendMessage(line);
 		}
 
+		public void BeginTrySendMessage( string line ) {
+			BeginInvoke( new Action( () => { if ( CurrentView!=null ) SendMessage(line); } ) );
+		}
+		public void BeginTrySendAction( string line ) {
+			BeginInvoke( new Action( () => { if ( CurrentView!=null ) SendAction(line); } ) );
+		}
+
 		void irc_OnChannelMode(IrcConnection connection, Irc.Actor op, string channel, string mode, string param) {
 			var view = ViewOf(connection,channel);
 			if ( view==null ) return;

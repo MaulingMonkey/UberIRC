@@ -8,7 +8,9 @@
 -->
 <uirc-settings
 	version="0.0"
->	
+>
+	<search command="/google" url="http://www.google.com/search?q={0}" />
+	
 	<defaults
 		nick="Guest"
 		user="uberirc"

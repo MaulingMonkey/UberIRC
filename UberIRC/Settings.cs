@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml;
+using UberIRC.Providers;
 
 namespace UberIRC {
 	public class Settings {
@@ -31,6 +32,17 @@ namespace UberIRC {
 
 			public List<Channel> Channels = new List<Channel>();
 		}
+
+		Provider[] Providers = new[]
+			{ new SearchCommandProvider()
+			};
+
+		private void Inject( XmlDocument settings ) { foreach ( var provider in Providers ) provider.Settings = settings; }
+		public  void Inject( IrcView     view     ) { foreach ( var provider in Providers ) provider.View     = view; }
+
+		public IEnumerable< KeyValuePair<String,Command> > Commands { get {
+			foreach ( var provider in Providers ) foreach ( var command in provider.Commands ) yield return command;
+		}}
 
 		Server DefaultServerSettings = new Server()
 			{ AutoConnect   = false
@@ -127,6 +139,8 @@ namespace UberIRC {
 		}
 
 		public Settings( XmlDocument settings ) {
+			Inject(settings);
+
 			foreach ( XmlNode server in settings.SelectNodes("//server") ) servers.Add( ReadServer(server) );
 
 			foreach ( var s in servers ) {
