@@ -10,14 +10,7 @@ using System.Windows.Forms;
 using System.Xml;
 
 namespace UberIRC.Providers {
-	abstract class Provider {
-		public XmlDocument Settings;
-		public IrcView     View;
-
-		public abstract IEnumerable< KeyValuePair<String,Command> > Commands { get; }
-	}
-
-	class SearchCommandProvider : Provider {
+	class SearchProvider : Provider {
 		public override IEnumerable< KeyValuePair<String,Command> > Commands { get {
 			
 			// <search command="/google" say="google {0}" emote="googles {0}" url="http://www.google.com/search?q={0}" />

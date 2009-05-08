@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Delegates.cs" />
+    <Compile Include="Providers\PasteProvider.cs" />
+    <Compile Include="Providers\Provider.cs" />
     <Compile Include="Providers\SearchCommandProvider.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="NET\Irc.cs" />

@@ -104,7 +104,7 @@ namespace UberIRC {
 		}
 
 		Dictionary< string, HashSet<string> > PastebinLanguageKeywords = new Dictionary<string,HashSet<string>>()
-				{ { "cpp", new HashSet<string>() { "#include", "#define", "namespace std", "namespace boost", "::", "->" } }
+				{ { "cpp", new HashSet<string>() { "#include", "#define", "using namespace", "namespace std", "namespace boost", "::", "->", "public:", "private:", "protected:" } }
 				, { "csharp", new HashSet<string>() { "unsafe", "System.", "this.", "throw new", "yield return" } }
 				};
 		void Pastebin() {

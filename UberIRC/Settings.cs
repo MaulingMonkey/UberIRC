@@ -34,7 +34,8 @@ namespace UberIRC {
 		}
 
 		Provider[] Providers = new[]
-			{ new SearchCommandProvider()
+			{ new SearchProvider()
+			, new PasteProvider()
 			};
 
 		private void Inject( XmlDocument settings ) { foreach ( var provider in Providers ) provider.Settings = settings; }
