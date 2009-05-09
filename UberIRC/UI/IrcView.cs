@@ -21,6 +21,26 @@ namespace UberIRC {
 		Dictionary<IrcChannelID,Channel> Views;
 		Dictionary<Keys        ,Action > Shortcuts;
 		Dictionary<String      ,Command> Commands;
+
+		public String Nickname { get {
+			string nick = null;
+			Invoke( new Action( () => {
+				if ( CurrentView == null ) nick = "UberIRC";
+				else nick = CurrentView.ID.Connection.ActualNickname;
+			}));
+			return nick;
+		} }
+
+		public void BeginTryPasteLink( string url ) {
+			BeginInvoke( new Action( () => {
+				if ( CurrentView == null ) return;
+				bool spaceit
+					= CurrentView.Input.Text.Length==0
+					&& !CurrentView.Input.Text.EndsWith(" ")
+					;
+				CurrentView.Input.Text += (spaceit?" ":"") + url;
+			}));
+		}
 		
 		void IDisposable.Dispose() {
 			base.Dispose();
@@ -63,7 +83,7 @@ namespace UberIRC {
 				, { Keys.X|Keys.Control    , Cut }
 				, { Keys.C|Keys.Control    , Copy }
 				, { Keys.V|Keys.Control    , Paste }
-				, { Keys.V|Keys.Control|Keys.Shift, Pastebin }
+				//, { Keys.V|Keys.Control|Keys.Shift, Pastebin }
 				, { Keys.BrowserForward    , NextView }
 				, { Keys.BrowserBack       , PrevView }
 				, { Keys.Left |Keys.Control, PrevView }
@@ -86,6 +106,7 @@ namespace UberIRC {
 				};
 
 			foreach ( var command in Settings.Commands ) Commands.Add( command.Key, command.Value );
+			foreach ( var shortcut in Settings.Shortcuts ) Shortcuts.Add( shortcut.Key, shortcut.Value );
 		}
 
 		void Cut() {
@@ -102,50 +123,6 @@ namespace UberIRC {
 		void Paste() {
 			if ( CurrentView == null ) return;
 			CurrentView.Input.Text += Clipboard.GetText();
-		}
-
-		Dictionary< string, HashSet<string> > PastebinLanguageKeywords = new Dictionary<string,HashSet<string>>()
-				{ { "cpp", new HashSet<string>() { "#include", "#define", "using namespace", "namespace std", "namespace boost", "::", "->", "public:", "private:", "protected:" } }
-				, { "csharp", new HashSet<string>() { "unsafe", "System.", "this.", "throw new", "yield return" } }
-				};
-		void Pastebin() {
-			string language = "csharp"; // default
-			var code = Clipboard.GetText();
-
-			foreach ( var entry in PastebinLanguageKeywords ) {
-				foreach ( var keyword in entry.Value )
-				if ( code.Contains(keyword) )
-				{
-					language = entry.Key;
-					break;
-				}
-			}
-
-			using ( var client = new WebClient() ) {
-				var p
-					= "paste=Send"
-					+ "&format="+language
-					+ "&poster="+HttpUtility.UrlEncode(CurrentView.ID.Connection.ActualNickname)
-					+ "&expiry=m" // d = day, m = month, f = forever
-					+ "&code2="+HttpUtility.UrlEncode(code)
-					;
-
-				client.Encoding = Encoding.UTF8;
-				client.Headers.Add( "Content-Type", "application/x-www-form-urlencoded" );
-				client.UploadStringCompleted += new UploadStringCompletedEventHandler(PastebinUploadStringCompleted);
-				client.UploadStringAsync( new Uri("http://gamedev.pastebin.com/pastebin.php"), p );
-			}
-		}
-
-		// <li class="highlight"><a href="http://gamedev.pastebin.com/m359e6558">DebugMonkey</a><br/>1 sec ago</li>
-		Regex pastebinpostmatcher = new Regex("<li class=\"highlight\"><a href=\"(.+)\">.+</a><br/>\\d+ sec ago</li>");
-
-		void PastebinUploadStringCompleted(object sender, UploadStringCompletedEventArgs e) {
-			string result = e.Result;
-			Match m = pastebinpostmatcher.Match( result ); // use client.ResponseHeaders instead?
-			if ( m.Success ) BeginInvoke( new Action( () => {
-				if ( CurrentView != null ) CurrentView.Input.Text += (CurrentView.Input.Text.Length==0 || CurrentView.Input.Text.EndsWith(" ") ? "" : " ") + m.Groups[1].Value;
-			}));
 		}
 
 		void NextView() {

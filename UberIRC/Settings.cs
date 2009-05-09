@@ -38,11 +38,15 @@ namespace UberIRC {
 			, new PasteProvider()
 			};
 
-		private void Inject( XmlDocument settings ) { foreach ( var provider in Providers ) provider.Settings = settings; }
-		public  void Inject( IrcView     view     ) { foreach ( var provider in Providers ) provider.View     = view; }
+		private void Inject( Settings settings ) { foreach ( var provider in Providers ) provider.Settings = settings; }
+		public  void Inject( IrcView  view     ) { foreach ( var provider in Providers ) provider.View     = view; }
 
 		public IEnumerable< KeyValuePair<String,Command> > Commands { get {
 			foreach ( var provider in Providers ) foreach ( var command in provider.Commands ) yield return command;
+		}}
+
+		public IEnumerable< KeyValuePair<Keys,Action> > Shortcuts { get {
+			foreach ( var provider in Providers ) foreach ( var shortcut in provider.Shortcuts ) yield return shortcut;
 		}}
 
 		Server DefaultServerSettings = new Server()
@@ -139,8 +143,10 @@ namespace UberIRC {
 			return s;
 		}
 
+		public readonly XmlDocument XML;
 		public Settings( XmlDocument settings ) {
-			Inject(settings);
+			XML = settings;
+			Inject(this);
 
 			foreach ( XmlNode server in settings.SelectNodes("//server") ) servers.Add( ReadServer(server) );
 

@@ -9,8 +9,8 @@ using System.Xml;
 
 namespace UberIRC.Providers {
 	abstract class Provider {
-		public XmlDocument Settings;
-		public IrcView     View;
+		public Settings Settings;
+		public IrcView  View;
 
 		public virtual IEnumerable< KeyValuePair<String,Command> > Commands  { get { yield break; } }
 		public virtual IEnumerable< KeyValuePair<Keys  ,Action > > Shortcuts { get { yield break; } }

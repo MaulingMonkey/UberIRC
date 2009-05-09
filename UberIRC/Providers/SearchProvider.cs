@@ -11,11 +11,10 @@ using System.Xml;
 
 namespace UberIRC.Providers {
 	class SearchProvider : Provider {
-		public override IEnumerable< KeyValuePair<String,Command> > Commands { get {
-			
-			// <search command="/google" say="google {0}" emote="googles {0}" url="http://www.google.com/search?q={0}" />
+		// <search command="/google" say="google {0}" emote="googles {0}" url="http://www.google.com/search?q={0}" />
 
-			foreach ( XmlNode node in Settings.SelectNodes("//search") ) {
+		public override IEnumerable< KeyValuePair<String,Command> > Commands { get {
+			foreach ( XmlNode node in Settings.XML.SelectNodes("//search") ) {
 				string command = null;
 				string emote = null;
 				string say = null;
