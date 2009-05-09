@@ -53,7 +53,7 @@
     <Compile Include="Delegates.cs" />
     <Compile Include="Providers\PasteProvider.cs" />
     <Compile Include="Providers\Provider.cs" />
-    <Compile Include="Providers\SearchCommandProvider.cs" />
+    <Compile Include="Providers\SearchProvider.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="NET\Irc.cs" />
     <Compile Include="NET\Irc.ModeChangeSet.cs" />
