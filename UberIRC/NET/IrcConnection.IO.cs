@@ -83,6 +83,14 @@ namespace UberIRC.NET {
 							Registered = true;
 							foreach ( string channel in TargetChannels ) Send("JOIN "+(channel.StartsWith("#")?channel:"#"+channel));
 							break;
+						case "331": // RPL_NOTOPIC
+						case "332": // RPL_TOPIC
+							if ( (match = new Regex(@"^[^ ]+ (?'channel'[^ ]+) \:?(?'topic'.+)$").Match(parameters)).Success ) {
+								var channel = match.Groups["channel"].Value;
+								var topic   = match.Groups["topic"].Value;
+								if ( OnTopic != null ) OnTopic( this, null, channel, topic );
+							}
+							break;
 						case "353": // RPL_NAMREPLY (Names list)
 							if ( (match = new Regex(@"^[^:]*?(?'channel'[^: ]+) \:(?'nicks'.+)$").Match(parameters)).Success )
 							{
@@ -195,6 +203,11 @@ namespace UberIRC.NET {
 								break;
 							} catch ( IndexOutOfRangeException ) {
 								// squelch IOOREs from running out of parameters or otherwise having malformed MODEs
+								break;
+							} case "TOPIC": {
+								var channel = ReadParam(ref param);
+								var newtopic = TrimColon(param);
+								if ( OnTopic != null ) OnTopic( this, actor, channel, newtopic );
 								break;
 							}
 						}

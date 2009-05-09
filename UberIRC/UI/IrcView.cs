@@ -79,6 +79,7 @@ namespace UberIRC {
 				, { "say" , SendMessage }
 				, { "me"  , SendAction }
 				, { "nick", ChangeNick }
+				, { "topic", ChangeTopic }
 				, { "o/"  , rest => SendMessage("/o/ "+rest) }
 				, { "kick", Kick }
 				, { "mode", ChangeModes }

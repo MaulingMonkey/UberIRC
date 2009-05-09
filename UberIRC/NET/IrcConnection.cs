@@ -113,6 +113,7 @@ namespace UberIRC.NET {
 		public event Irc.ModeEvent OnMode;
 		public event Irc.PrivMsgEvent OnPrivMsg;
 		public event Irc.ChannelModeEvent OnChannelMode;
+		public event Irc.TopicEvent OnTopic;
 
 		public IEnumerable<String> WhosIn( string channel ) {
 			if ( Channels.ContainsKey(channel) ) return Channels[channel].Names;
@@ -137,6 +138,12 @@ namespace UberIRC.NET {
 			lock (Lock) {
 				Send( "NICK "+newnick );
 				TargetNickname = newnick;
+			}
+		}
+
+		public void Topic( string channel, string topic ) {
+			lock (Lock) {
+				Send( "TOPIC "+channel+" :"+topic );
 			}
 		}
 

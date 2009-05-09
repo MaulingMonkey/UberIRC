@@ -33,7 +33,7 @@ namespace UberIRC {
 			public List<Channel> Channels = new List<Channel>();
 		}
 
-		Provider[] Providers = new[]
+		Provider[] Providers = new Provider[]
 			{ new SearchProvider()
 			, new PasteProvider()
 			};

@@ -21,6 +21,7 @@ namespace UberIRC {
 			irc.OnPart        += (conn,who,chan)             => BeginInvoke( new Action( () => irc_OnPart       (conn,who,chan) ) );
 			irc.OnPrivMsg     += (conn,who,target,message)   => BeginInvoke( new Action( () => irc_OnPrivMsg    (conn,who,target,message) ) );
 			irc.OnQuit        += (conn,who,ch,message)       => BeginInvoke( new Action( () => irc_OnQuit       (conn,who,ch,message) ) );
+			irc.OnTopic       += (conn,who,ch,topic)         => BeginInvoke( new Action( () => irc_OnTopic      (conn,who,ch,topic) ) );
 		}
 		
 		void OnEnter() {
@@ -84,6 +85,10 @@ namespace UberIRC {
 		void ChangeNick( string newnick ) {
 			if ( newnick == "" ) return;
 			CurrentView.ID.Connection.Nick(newnick);
+		}
+
+		void ChangeTopic( string topic ) {
+			CurrentView.ID.Connection.Topic( CurrentView.ID.Channel, topic );
 		}
 
 		void SendMessage( string line ) {
@@ -220,6 +225,28 @@ namespace UberIRC {
 				, Message = who + " has quit " + connection.ConnectionID.Hostname + (message=="" ? "" : (" ("+message+")"))
 				, Style = system
 				});
+			Invalidate();
+		}
+
+		void irc_OnTopic( IrcConnection connection, Irc.Actor who, string channel, string topic ) {
+			var view = ViewOf(connection,channel);
+			if ( view==null ) return;
+
+			if ( who == null ) {
+				view.History.Add( new HistoryEntry()
+					{ Nickname = "TOPIC"
+					, Timestamp = Timestamp
+					, Message = topic
+					, Style = system
+					});
+			} else {
+				view.History.Add( new HistoryEntry()
+					{ Nickname = ""
+					, Timestamp = Timestamp
+					, Message = who.Nickname + " has changed the topic to " + topic
+					, Style = system
+					});
+			}
 			Invalidate();
 		}
 
