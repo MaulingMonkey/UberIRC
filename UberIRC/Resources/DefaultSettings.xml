@@ -6,31 +6,27 @@
 	(See accompanying file ..\..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
 	
 -->
-<uirc-settings
-	version="0.0"
->
+<uirc-settings version="0.0">
+	<!-- Uncomment if you want, it should work:
+	
+	<paste shortcut="Ctrl+Shift+V">
+		<text lang="C#"  to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=csharp code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		<text lang="C++" to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=cpp    code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		<text lang="XML" to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=xml    code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		<text            to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=csharp code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		<image
+			to="http://www.imageshack.us/index.php"
+			post="MAX_FILE_SIZE=1048576 refer= xml=yes submit=host+it! fileupload={image}"
+			scrape="&lt;image_link&gt;(.+?)&lt;/image_link&gt;"
+		/>
+	</paste>
+	-->
+
 	<search command="/google" url="http://www.google.com/search?q={0}" />
 	
-	<defaults
-		nick="Guest"
-		user="uberirc"
-	/>
-	<server
-		name="AfterNet"
-		url ="irc.afternet.org"
-		nick="Guest"
-		user="uberirc"
-		auto="connect,reconnect"
-	>
-		<channel
-			name="#gamedev"
-			auto="join,rejoin"
-			shortcut="Ctrl+1"
-		/>
-		<channel
-			name="#graphicsdev"
-			auto="join,rejoin"
-			shortcut="Ctrl+2"
-		/>
+	<defaults nick="UberGuest" user="uberirc" />
+	<server name="AfterNet" url ="irc.afternet.org" nick="Guest" user="uberirc" auto="connect,reconnect">
+		<channel shortcut="Ctrl+1" name="#gamedev" auto="join,rejoin" />
+		<channel shortcut="Ctrl+2" name="#graphicschat" auto="join,rejoin" />
 	</server>
 </uirc-settings>

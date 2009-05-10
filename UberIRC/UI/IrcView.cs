@@ -35,7 +35,7 @@ namespace UberIRC {
 			BeginInvoke( new Action( () => {
 				if ( CurrentView == null ) return;
 				bool spaceit
-					= CurrentView.Input.Text.Length==0
+					= CurrentView.Input.Text.Length!=0
 					&& !CurrentView.Input.Text.EndsWith(" ")
 					;
 				CurrentView.Input.Text += (spaceit?" ":"") + url;
@@ -83,7 +83,6 @@ namespace UberIRC {
 				, { Keys.X|Keys.Control    , Cut }
 				, { Keys.C|Keys.Control    , Copy }
 				, { Keys.V|Keys.Control    , Paste }
-				//, { Keys.V|Keys.Control|Keys.Shift, Pastebin }
 				, { Keys.BrowserForward    , NextView }
 				, { Keys.BrowserBack       , PrevView }
 				, { Keys.Left |Keys.Control, PrevView }

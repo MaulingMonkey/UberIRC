@@ -17,17 +17,21 @@ using System.Text.RegularExpressions;
 namespace UberIRC.Providers {
 	class PasteProvider : Provider {
 		//<paste shortcut="Ctrl+Shift+V">
-		//    <text lang="C#"  to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send&poster={poster}&expiry=m&format=csharp&code2={code}" />
-		//    <text lang="C++" to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send&poster={poster}&expiry=m&format=cpp&code2={code}" />
-		//    <text            to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send&poster={poster}&expiry=m&format=csharp&code2={code}" />
-		//    <image           to="http://load.imageshack.us/" post="MAX_FILE_SIZE=1048576&type=blank&submit=host+it!&fileupload={image}" />
-		//    <image           to="http://imageshack.us/index.php" post="MAX_FILE_SIZE=1048576&type=blank&submit=host+it!&fileupload={image}" />
+		//    <text lang="C#"  to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=csharp code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		//    <text lang="C++" to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=cpp    code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		//    <text lang="XML" to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=xml    code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		//    <text            to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=csharp code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />
+		//    <image
+		//        to="http://www.imageshack.us/index.php"
+		//        post="MAX_FILE_SIZE=1048576 refer= xml=yes submit=host+it! fileupload={image}"
+		//        scrape="&lt;image_link&gt;(.+?)&lt;/image_link&gt;"
+		//    />
 		//</paste>
-		// enctype="multipart/form-data"
 
 		static Dictionary< string, HashSet<string> > LanguageKeywords = new Dictionary<string,HashSet<string>>()
 			{ { "C++", new HashSet<string>() { "#include", "#define", "using namespace", "namespace std", "namespace boost", "::", "->", "public:", "private:", "protected:" } }
 			, { "C#", new HashSet<string>() { "unsafe", "System.", "this.", "throw new", "yield return" } }
+			, { "XML", new HashSet<string>() { "<?xml", "/>", "&lt;", "&amp;", "&gt;", "<!--", "-->" } }
 			};
 
 		class Paster {
