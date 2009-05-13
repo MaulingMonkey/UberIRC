@@ -98,9 +98,12 @@ namespace UberIRC {
 				, { "say" , SendMessage }
 				, { "me"  , SendAction }
 				, { "nick", ChangeNick }
-				, { "topic", ChangeTopic }
+				, { "topic", Topic }
 				, { "o/"  , rest => SendMessage("/o/ "+rest) }
 				, { "kick", Kick }
+				, { "ban" , Ban }
+				, { "kickban", KickBan }
+				, { "kb", KickBan }
 				, { "mode", ChangeModes }
 				};
 
@@ -190,6 +193,21 @@ namespace UberIRC {
 				CurrentView.ID.Connection.Kick( CurrentView.ID.Channel, p.Substring(0,s), p.Substring(s+1) );
 			} else {
 				CurrentView.ID.Connection.Kick( CurrentView.ID.Channel, p, "" );
+			}
+		}
+
+		void Ban( string p ) {
+			if ( CurrentView == null ) return;
+			CurrentView.ID.Connection.Ban( CurrentView.ID.Channel, p );
+		}
+
+		void KickBan( string p ) {
+			if ( CurrentView == null ) return;
+			if ( p.Contains(' ') ) {
+				int s = p.IndexOf(' ');
+				CurrentView.ID.Connection.KickBan( CurrentView.ID.Channel, p.Substring(0,s), p.Substring(s+1) );
+			} else {
+				CurrentView.ID.Connection.KickBan( CurrentView.ID.Channel, p, "" );
 			}
 		}
 

@@ -87,8 +87,9 @@ namespace UberIRC {
 			CurrentView.ID.Connection.Nick(newnick);
 		}
 
-		void ChangeTopic( string topic ) {
-			CurrentView.ID.Connection.Topic( CurrentView.ID.Channel, topic );
+		void Topic( string topic ) {
+			if ( topic != "" ) CurrentView.ID.Connection.Topic( CurrentView.ID.Channel, topic );
+			else CurrentView.ID.Connection.RequestTopic(CurrentView.ID.Channel);
 		}
 
 		void SendMessage( string line ) {

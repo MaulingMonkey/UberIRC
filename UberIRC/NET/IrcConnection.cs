@@ -56,8 +56,20 @@ namespace UberIRC.NET {
 	}
 
 	public partial class IrcConnection : IDisposable {
+		class User {
+			string hostname = null;
+			public string Hostname { get {
+				return hostname;
+			} set {
+				hostname = value;
+				if ( OnResolveHostname != null ) OnResolveHostname();
+				OnResolveHostname = null;
+			} }
+			public event Action OnResolveHostname = null;
+		}
+
 		class Channel {
-			public HashSet<String> Names = new HashSet<string>();
+			public Dictionary<String,User> Users = new Dictionary<String,User>();
 		}
 
 		public void Dispose() {
@@ -81,7 +93,7 @@ namespace UberIRC.NET {
 
 		Channel AddChannel( string id ) {
 			if ( Channels.ContainsKey(id) ) {
-				Channels[id].Names.Clear();
+				Channels[id].Users.Clear();
 			} else {
 				Channels.Add(id,new Channel());
 			}
@@ -116,7 +128,7 @@ namespace UberIRC.NET {
 		public event Irc.TopicEvent OnTopic;
 
 		public IEnumerable<String> WhosIn( string channel ) {
-			if ( Channels.ContainsKey(channel) ) return Channels[channel].Names;
+			if ( Channels.ContainsKey(channel) ) return Channels[channel].Users.Keys;
 			else return new string[]{};
 		}
 
@@ -144,9 +156,45 @@ namespace UberIRC.NET {
 		public void Topic( string channel, string topic ) {
 			Send( "TOPIC "+channel+" :"+topic );
 		}
+		
+		public void RequestTopic( string channel ) {
+			Send( "TOPIC "+channel );
+		}
 
 		public void Kick( string channel, string target, string message ) {
 			Send( "KICK "+channel+" "+target+((message.Length!=0)?(" :"+message):"") );
+		}
+
+		public void Ban( string channel, string target ) {
+			KickBan(channel,target,null);
+		}
+		public void KickBan( string channel, string target, string message ) {
+			// Will not kick if message == null
+
+			lock (Lock)
+			if ( Channels.ContainsKey(channel) )
+			{
+				var c = Channels[channel];
+				
+				if ( c.Users.ContainsKey(target) ) {
+					var u = c.Users[target];
+					if ( u.Hostname != null ) {
+						Send( "MODE "+channel+" +b *!*@"+u.Hostname );
+						if ( message != null ) Kick( channel, target, message );
+					} else {
+						u.OnResolveHostname += () => {
+							Send( "MODE "+channel+" +b "+u.Hostname );
+							if ( message != null ) Kick( channel, target, message );
+						};
+						Send("WHOIS "+target);
+					}
+				}
+			}
+			else
+			{
+				Send("MODE "+channel+" +b "+target);
+				if ( message != null ) Kick( channel, target, message ); // could be a kick mask?
+			}
 		}
 
 		public void ChangeModes( string channel, Irc.ModeChangeSet modes ) {

@@ -83,6 +83,20 @@ namespace UberIRC.NET {
 							Registered = true;
 							foreach ( string channel in TargetChannels ) Send("JOIN "+(channel.StartsWith("#")?channel:"#"+channel));
 							break;
+						case "311": // RPL_WHOISUSER "<nick> <user> <host> * :<real name>"
+							if ( (match = new Regex(@"^([^ ]+) ([^ ]+) ([^ ]+) * \:(.+)$").Match(parameters)).Success ) {
+								var nick = match.Groups[1].Value;
+								var user = match.Groups[2].Value;
+								var host = match.Groups[3].Value;
+								var real = match.Groups[4].Value;
+
+								foreach ( var ch in Channels.Values )
+								if ( ch.Users.ContainsKey(nick) )
+								{
+									ch.Users[nick].Hostname = host;
+								}
+							}
+							break;
 						case "331": // RPL_NOTOPIC
 						case "332": // RPL_TOPIC
 							if ( (match = new Regex(@"^[^ ]+ (?'channel'[^ ]+) \:?(?'topic'.+)$").Match(parameters)).Success ) {
@@ -112,7 +126,7 @@ namespace UberIRC.NET {
 										break;
 									}
 									
-									channel.Names.Add(nick);
+									channel.Users.Add( nick, new User() ); //channel.Names.Add(nick);
 								}
 							}
 							break;
@@ -137,23 +151,24 @@ namespace UberIRC.NET {
 								if ( nick == ActualNickname ) ActualNickname = newnick; // we got renamed!
 
 								foreach ( var channel in Channels )
-								if ( channel.Value.Names.Contains(nick) )
+								if ( channel.Value.Users.ContainsKey(nick) )
 								{
-									channel.Value.Names.Remove(nick);
-									channel.Value.Names.Add(newnick);
+									var info = channel.Value.Users[nick];
+									channel.Value.Users.Remove(nick);
+									channel.Value.Users.Add(newnick,info);
 									if ( OnNick != null ) OnNick( this, actor, channel.Key, newnick );
 								}
 								break;
 							} case "JOIN": {
 								var channel = ReadParam(ref param);
 								if ( nick == ActualNickname ) AddChannel(channel); // we joined a channel!
-								if ( Channels.ContainsKey(channel) ) Channels[channel].Names.Add(nick);
+								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Add(nick, new User());
 								if ( OnJoin != null ) OnJoin( this, actor, channel );
 								break;
 							} case "PART": {
 								var channel = ReadParam(ref param);
 								if ( nick == ActualNickname ) RemoveChannel(channel); // we left a channel!
-								if ( Channels.ContainsKey(channel) ) Channels[channel].Names.Remove(nick);
+								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Remove(nick);
 								if ( OnPart != null ) OnPart( this, actor, channel );
 								break;
 							} case "QUIT": {
@@ -161,7 +176,7 @@ namespace UberIRC.NET {
 
 								if ( OnQuit != null )
 								foreach ( var channel in Channels )
-								if ( channel.Value.Names.Contains(nick) )
+								if ( channel.Value.Users.ContainsKey(nick) )
 								{
 									OnQuit( this, actor, channel.Key, message );
 								}
@@ -170,7 +185,7 @@ namespace UberIRC.NET {
 								var channel = ReadParam(ref param);
 								var target  = ReadParam(ref param);
 								var message = TrimColon(param);
-								if ( Channels.ContainsKey(channel) ) Channels[channel].Names.Remove(target);
+								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Remove(target);
 								if ( target == ActualNickname ) { // we were kicked from a channel!
 									RemoveChannel( channel );
 									if ( AutoRejoin ) Join( channel );
