@@ -142,13 +142,11 @@ namespace UberIRC.NET {
 		}
 
 		public void Topic( string channel, string topic ) {
-			lock (Lock) {
-				Send( "TOPIC "+channel+" :"+topic );
-			}
+			Send( "TOPIC "+channel+" :"+topic );
 		}
 
 		public void Kick( string channel, string target, string message ) {
-			Send( "KICK "+channel+" "+target+((message.Length!=0)?(" "+message):"") );
+			Send( "KICK "+channel+" "+target+((message.Length!=0)?(" :"+message):"") );
 		}
 
 		public void ChangeModes( string channel, Irc.ModeChangeSet modes ) {
