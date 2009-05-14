@@ -53,6 +53,7 @@ namespace UberIRC.NET {
 				connection.OnKick += OnKick;
 				connection.OnMode += OnMode;
 				connection.OnPrivMsg += OnPrivMsg;
+				connection.OnNotice += OnNotice;
 				connection.OnChannelMode += OnChannelMode;
 				connection.OnTopic += OnTopic;
 				Connections.Add(id,connection);
@@ -105,6 +106,7 @@ namespace UberIRC.NET {
 		public delegate void KickEvent( IrcConnection connection, Actor op , string channel, string target, string message );
 		public delegate void ModeEvent( IrcConnection connection, Actor op , string channel, string mode, string target );
 		public delegate void PrivMsgEvent( IrcConnection connection, Actor who, string target, string message );
+		public delegate void NoticeEvent( IrcConnection connection, Actor who, string target, string message );
 		public delegate void ChannelModeEvent( IrcConnection connection, Actor op, string channel, string mode, string param );
 		public delegate void TopicEvent( IrcConnection connection, Actor who, string channel, string topic );
 
@@ -115,6 +117,7 @@ namespace UberIRC.NET {
 		public event KickEvent OnKick;
 		public event ModeEvent OnMode;
 		public event PrivMsgEvent OnPrivMsg;
+		public event NoticeEvent OnNotice;
 		public event ChannelModeEvent OnChannelMode;
 		public event TopicEvent OnTopic;
 	}

@@ -205,6 +205,11 @@ namespace UberIRC.NET {
 									break;
 								}
 								break;
+							} case "NOTICE": {
+								var target = ReadParam(ref param);
+								var message = TrimColon(param);
+								if ( OnNotice != null ) OnNotice( this, actor, target, message );
+								break;
 							} case "MODE": try {
 								var channel = ReadParam(ref param);
 								var modes = new Irc.ModeChangeSet(param);

@@ -20,6 +20,7 @@ namespace UberIRC {
 			irc.OnNick        += (conn,who,ch,new_)          => BeginInvoke( new Action( () => irc_OnNick       (conn,who,ch,new_) ) );
 			irc.OnPart        += (conn,who,chan)             => BeginInvoke( new Action( () => irc_OnPart       (conn,who,chan) ) );
 			irc.OnPrivMsg     += (conn,who,target,message)   => BeginInvoke( new Action( () => irc_OnPrivMsg    (conn,who,target,message) ) );
+			irc.OnNotice      += (conn,who,target,message)   => BeginInvoke( new Action( () => irc_OnNotice     (conn,who,target,message) ) );
 			irc.OnQuit        += (conn,who,ch,message)       => BeginInvoke( new Action( () => irc_OnQuit       (conn,who,ch,message) ) );
 			irc.OnTopic       += (conn,who,ch,topic)         => BeginInvoke( new Action( () => irc_OnTopic      (conn,who,ch,topic) ) );
 		}
@@ -142,7 +143,7 @@ namespace UberIRC {
 			view.History.Add( new HistoryEntry()
 				{ Nickname  = ""
 				, Timestamp = Timestamp
-				, Message   = op.Nickname + " has kicked " + target + " from the channel"
+				, Message   = op.Nickname + " has kicked " + target + " from the channel" + (message=="" ? "" : (" ("+message+")"))
 				, Style     = system
 				});
 			if ( view == CurrentView ) Invalidate();
@@ -188,6 +189,35 @@ namespace UberIRC {
 		}
 
 		void irc_OnPrivMsg(IrcConnection connection, Irc.Actor who, string target, string message) {
+			var view = ViewOf(connection,target);
+			if ( view==null ) return;
+
+			var style
+				= connection.ActualNickname == who.Nickname     ? self
+				: message.Contains( connection.ActualNickname ) ? alerted
+				: normal
+				;
+
+			Match m;
+			if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
+				view.History.Add( new HistoryEntry()
+					{ Nickname  = who.Nickname
+					, Timestamp = Timestamp
+					, Message   = m.Groups["action"].Value
+					, Style     = style
+					});
+			} else {
+				view.History.Add( new HistoryEntry()
+					{ Nickname  = "<"+who.Nickname+">"
+					, Timestamp = Timestamp
+					, Message   = message
+					, Style     = style
+					});
+			}
+            if ( view == CurrentView ) Invalidate();
+		}
+
+		void irc_OnNotice(IrcConnection connection, Irc.Actor who, string target, string message) {
 			var view = ViewOf(connection,target);
 			if ( view==null ) return;
 

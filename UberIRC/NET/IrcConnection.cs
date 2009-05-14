@@ -124,6 +124,7 @@ namespace UberIRC.NET {
 		public event Irc.KickEvent OnKick;
 		public event Irc.ModeEvent OnMode;
 		public event Irc.PrivMsgEvent OnPrivMsg;
+		public event Irc.NoticeEvent OnNotice;
 		public event Irc.ChannelModeEvent OnChannelMode;
 		public event Irc.TopicEvent OnTopic;
 
