@@ -84,7 +84,7 @@ namespace UberIRC.NET {
 							foreach ( string channel in TargetChannels ) Send("JOIN "+(channel.StartsWith("#")?channel:"#"+channel));
 							break;
 						case "311": // RPL_WHOISUSER "<nick> <user> <host> * :<real name>"
-							if ( (match = new Regex(@"^([^ ]+) ([^ ]+) ([^ ]+) * \:(.+)$").Match(parameters)).Success ) {
+							if ( (match = new Regex(@"^[^ ]+ ([^ ]+) ([^ ]+) ([^ ]+) \* \:(.+)$").Match(parameters)).Success ) {
 								var nick = match.Groups[1].Value;
 								var user = match.Groups[2].Value;
 								var host = match.Groups[3].Value;
@@ -126,7 +126,7 @@ namespace UberIRC.NET {
 										break;
 									}
 									
-									channel.Users.Add( nick, new User() ); //channel.Names.Add(nick);
+									if ( !channel.Users.ContainsKey(nick) ) channel.Users.Add( nick, new User() ); //channel.Names.Add(nick);
 								}
 							}
 							break;
@@ -155,14 +155,14 @@ namespace UberIRC.NET {
 								{
 									var info = channel.Value.Users[nick];
 									channel.Value.Users.Remove(nick);
-									channel.Value.Users.Add(newnick,info);
+									if ( !channel.Value.Users.ContainsKey(newnick) ) channel.Value.Users.Add(newnick,info);
 									if ( OnNick != null ) OnNick( this, actor, channel.Key, newnick );
 								}
 								break;
 							} case "JOIN": {
 								var channel = ReadParam(ref param);
 								if ( nick == ActualNickname ) AddChannel(channel); // we joined a channel!
-								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Add(nick, new User());
+								if ( Channels.ContainsKey(channel) && !Channels[channel].Users.ContainsKey(nick) ) Channels[channel].Users.Add(nick, new User());
 								if ( OnJoin != null ) OnJoin( this, actor, channel );
 								break;
 							} case "PART": {
