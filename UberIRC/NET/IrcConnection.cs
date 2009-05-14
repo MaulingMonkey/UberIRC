@@ -104,29 +104,19 @@ namespace UberIRC.NET {
 			if ( Channels.ContainsKey(id) ) Channels.Remove(id);
 		}
 
-		public IrcConnection( IrcConnectParams p ) {
+		public IrcConnection( IrcConnectParams p ): this(p,new HashSet<IEventListener>()) {}
+		public IrcConnection( IrcConnectParams p, HashSet<IEventListener> listeners ) {
 			if ( p.Channels != null ) foreach ( string channel in p.Channels ) AddChannel(channel);
 			Parameters     = p;
 			TargetNickname = p.User.Nick;
 			Encoding       = p.Encoding;
+			Listeners = listeners;
 			BeginReconnect();
 		}
 
 		public IrcConnectionID ConnectionID { get { return Parameters.To; } }
 
-		public delegate void OnRecieveHandler( String message );
-		public event OnRecieveHandler OnRecieve;
-
-		public event Irc.NickEvent OnNick;
-		public event Irc.JoinEvent OnJoin;
-		public event Irc.PartEvent OnPart;
-		public event Irc.QuitEvent OnQuit;
-		public event Irc.KickEvent OnKick;
-		public event Irc.ModeEvent OnMode;
-		public event Irc.PrivMsgEvent OnPrivMsg;
-		public event Irc.NoticeEvent OnNotice;
-		public event Irc.ChannelModeEvent OnChannelMode;
-		public event Irc.TopicEvent OnTopic;
+		public readonly HashSet<IEventListener> Listeners;
 
 		public IEnumerable<String> WhosIn( string channel ) {
 			if ( Channels.ContainsKey(channel) ) return Channels[channel].Users.Keys;

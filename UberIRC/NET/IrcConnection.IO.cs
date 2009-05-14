@@ -69,7 +69,7 @@ namespace UberIRC.NET {
 
 					var s = Encoding.GetString(buffer, begin, end-begin).TrimEnd( new[]{'\r','\n'} );
 
-					if (OnRecieve != null) OnRecieve(s);
+					//if (OnRecieve != null) OnRecieve(s);
 					Match match;
 					if ( ( match = new Regex(@"^PING(.*)$").Match(s)).Success ) {
 						var code = match.Groups[1].Value;
@@ -102,7 +102,7 @@ namespace UberIRC.NET {
 							if ( (match = new Regex(@"^[^ ]+ (?'channel'[^ ]+) \:?(?'topic'.+)$").Match(parameters)).Success ) {
 								var channel = match.Groups["channel"].Value;
 								var topic   = match.Groups["topic"].Value;
-								if ( OnTopic != null ) OnTopic( this, null, channel, topic );
+								foreach ( var l in Listeners ) l.OnTopic( this, null, channel, topic );
 							}
 							break;
 						case "353": // RPL_NAMREPLY (Names list)
@@ -156,29 +156,29 @@ namespace UberIRC.NET {
 									var info = channel.Value.Users[nick];
 									channel.Value.Users.Remove(nick);
 									if ( !channel.Value.Users.ContainsKey(newnick) ) channel.Value.Users.Add(newnick,info);
-									if ( OnNick != null ) OnNick( this, actor, channel.Key, newnick );
+									foreach ( var l in Listeners ) l.OnNick( this, actor, channel.Key, newnick );
 								}
 								break;
 							} case "JOIN": {
 								var channel = ReadParam(ref param);
 								if ( nick == ActualNickname ) AddChannel(channel); // we joined a channel!
 								if ( Channels.ContainsKey(channel) && !Channels[channel].Users.ContainsKey(nick) ) Channels[channel].Users.Add(nick, new User());
-								if ( OnJoin != null ) OnJoin( this, actor, channel );
+								foreach ( var l in Listeners ) l.OnJoin( this, actor, channel );
 								break;
 							} case "PART": {
 								var channel = ReadParam(ref param);
 								if ( nick == ActualNickname ) RemoveChannel(channel); // we left a channel!
 								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Remove(nick);
-								if ( OnPart != null ) OnPart( this, actor, channel );
+								foreach ( var l in Listeners ) l.OnPart( this, actor, channel );
 								break;
 							} case "QUIT": {
 								var message = TrimColon(param);
 
-								if ( OnQuit != null )
+								foreach ( var l in Listeners )
 								foreach ( var channel in Channels )
 								if ( channel.Value.Users.ContainsKey(nick) )
 								{
-									OnQuit( this, actor, channel.Key, message );
+									l.OnQuit( this, actor, channel.Key, message );
 								}
 								break;
 							} case "KICK": {
@@ -190,7 +190,7 @@ namespace UberIRC.NET {
 									RemoveChannel( channel );
 									if ( AutoRejoin ) Join( channel );
 								}
-								if ( OnKick != null ) OnKick( this, actor, channel, target, message );
+								foreach ( var l in Listeners ) l.OnKick( this, actor, channel, target, message );
 								break;
 							} case "PRIVMSG": {
 								var target = ReadParam(ref param);
@@ -201,24 +201,22 @@ namespace UberIRC.NET {
 									Send( "NOTICE "+nick+" :\u0001VERSION UberIRC "+Assembly.GetExecutingAssembly().ImageRuntimeVersion+" Unknown Unavailable\u0001" );
 									break;
 								default:
-									if ( OnPrivMsg != null ) OnPrivMsg( this, actor, target, message );
+									foreach ( var l in Listeners ) l.OnPrivMsg( this, actor, target, message );
 									break;
 								}
 								break;
 							} case "NOTICE": {
 								var target = ReadParam(ref param);
 								var message = TrimColon(param);
-								if ( OnNotice != null ) OnNotice( this, actor, target, message );
+								foreach ( var l in Listeners ) l.OnNotice( this, actor, target, message );
 								break;
 							} case "MODE": try {
 								var channel = ReadParam(ref param);
 								var modes = new Irc.ModeChangeSet(param);
 								
-								if ( OnMode != null ) foreach ( var mode in modes.UserModes ) {
-									OnMode( this, actor, channel, mode.Key, mode.Value );
-								}
-								if ( OnChannelMode != null ) foreach ( var mode in modes.ChannelModes ) {
-									OnChannelMode( this, actor, channel, mode.Key, mode.Value );
+								foreach ( var l in Listeners ) {
+									foreach ( var mode in modes.UserModes    ) l.OnModeChange( this, actor, channel, mode.Key, mode.Value );
+									foreach ( var mode in modes.ChannelModes ) l.OnChannelModeChange( this, actor, channel, mode.Key, mode.Value );
 								}
 								break;
 							} catch ( IndexOutOfRangeException ) {
@@ -227,7 +225,7 @@ namespace UberIRC.NET {
 							} case "TOPIC": {
 								var channel = ReadParam(ref param);
 								var newtopic = TrimColon(param);
-								if ( OnTopic != null ) OnTopic( this, actor, channel, newtopic );
+								foreach ( var l in Listeners ) l.OnTopic( this, actor, channel, newtopic );
 								break;
 							}
 						}

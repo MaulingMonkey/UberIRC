@@ -10,6 +10,8 @@ using Industry;
 
 namespace UberIRC.NET {
 	public partial class Irc : RAII {
+		public readonly HashSet<IEventListener> Listeners = new HashSet<IEventListener>();
+
 		public static string NicknameOf( string nickidhost ) { return nickidhost.Substring(0,nickidhost.IndexOf('!')); }
 
 		[Owns(false,true)] Dictionary< IrcConnectionID, IrcConnection > Connections = new Dictionary<IrcConnectionID,IrcConnection>();
@@ -45,17 +47,7 @@ namespace UberIRC.NET {
 			
 			IrcConnection connection;
 			if ( !Connections.ContainsKey(id) ) {
-				connection = new IrcConnection(p);
-				connection.OnNick += OnNick;
-				connection.OnJoin += OnJoin;
-				connection.OnPart += OnPart;
-				connection.OnQuit += OnQuit;
-				connection.OnKick += OnKick;
-				connection.OnMode += OnMode;
-				connection.OnPrivMsg += OnPrivMsg;
-				connection.OnNotice += OnNotice;
-				connection.OnChannelMode += OnChannelMode;
-				connection.OnTopic += OnTopic;
+				connection = new IrcConnection(p,Listeners);
 				Connections.Add(id,connection);
 			} else {
 				connection = Connections[id];
@@ -99,26 +91,5 @@ namespace UberIRC.NET {
 			public string Hostname;
 			public override string ToString() { return Nickname + "!" + Username + "@" + Hostname; }
 		}
-		public delegate void NickEvent( IrcConnection connection, Actor who, string channel, string new_ );
-		public delegate void JoinEvent( IrcConnection connection, Actor who, string channel );
-		public delegate void PartEvent( IrcConnection connection, Actor who, string channel );
-		public delegate void QuitEvent( IrcConnection connection, Actor who, string channel, string message );
-		public delegate void KickEvent( IrcConnection connection, Actor op , string channel, string target, string message );
-		public delegate void ModeEvent( IrcConnection connection, Actor op , string channel, string mode, string target );
-		public delegate void PrivMsgEvent( IrcConnection connection, Actor who, string target, string message );
-		public delegate void NoticeEvent( IrcConnection connection, Actor who, string target, string message );
-		public delegate void ChannelModeEvent( IrcConnection connection, Actor op, string channel, string mode, string param );
-		public delegate void TopicEvent( IrcConnection connection, Actor who, string channel, string topic );
-
-		public event NickEvent OnNick;
-		public event JoinEvent OnJoin;
-		public event PartEvent OnPart;
-		public event QuitEvent OnQuit;
-		public event KickEvent OnKick;
-		public event ModeEvent OnMode;
-		public event PrivMsgEvent OnPrivMsg;
-		public event NoticeEvent OnNotice;
-		public event ChannelModeEvent OnChannelMode;
-		public event TopicEvent OnTopic;
 	}
 }

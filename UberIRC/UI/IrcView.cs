@@ -54,6 +54,7 @@ namespace UberIRC {
 			Views = new Dictionary<IrcChannelID,Channel>();
 
 			irc = new Irc(settings);
+			irc.Listeners.Add(this);
 
 			cursorblink = new Timer() { Interval = 500 };
 			cursorblink.Tick += (o,args) => { cursor = !cursor; Invalidate(); };
@@ -62,7 +63,6 @@ namespace UberIRC {
 			InitializeComponent();
 			InitializeShortcutsAndCommands();
 			InitializeStyle();
-			InitializeIO();
 
 			foreach ( var server in settings.Servers ) {
 				var connection = irc.Connect(server.Uri);

@@ -9,22 +9,11 @@ using Industry;
 using UberIRC.NET;
 
 namespace UberIRC {
-	public partial class IrcView {
+	public partial class IrcView : NET.IEventListener {
 		[Owns] Irc irc;
 
-		void InitializeIO() {
-			irc.OnChannelMode += (conn,op,ch,mode,param)     => BeginInvoke( new Action( () => irc_OnChannelMode(conn,op,ch,mode,param) ) );
-			irc.OnJoin        += (conn,who,ch)               => BeginInvoke( new Action( () => irc_OnJoin       (conn,who,ch) ) );
-			irc.OnKick        += (conn,op,ch,target,message) => BeginInvoke( new Action( () => irc_OnKick       (conn,op,ch,target,message) ) );
-			irc.OnMode        += (conn,op,ch,mode,target)    => BeginInvoke( new Action( () => irc_OnMode       (conn,op,ch,mode,target) ) );
-			irc.OnNick        += (conn,who,ch,new_)          => BeginInvoke( new Action( () => irc_OnNick       (conn,who,ch,new_) ) );
-			irc.OnPart        += (conn,who,chan)             => BeginInvoke( new Action( () => irc_OnPart       (conn,who,chan) ) );
-			irc.OnPrivMsg     += (conn,who,target,message)   => BeginInvoke( new Action( () => irc_OnPrivMsg    (conn,who,target,message) ) );
-			irc.OnNotice      += (conn,who,target,message)   => BeginInvoke( new Action( () => irc_OnNotice     (conn,who,target,message) ) );
-			irc.OnQuit        += (conn,who,ch,message)       => BeginInvoke( new Action( () => irc_OnQuit       (conn,who,ch,message) ) );
-			irc.OnTopic       += (conn,who,ch,topic)         => BeginInvoke( new Action( () => irc_OnTopic      (conn,who,ch,topic) ) );
-		}
-		
+		void Begin( Action a ) { BeginInvoke(a); }
+
 		void OnEnter() {
 			if ( CurrentView == null ) return;
 
@@ -94,7 +83,7 @@ namespace UberIRC {
 		}
 
 		void SendMessage( string line ) {
-			irc_OnPrivMsg( CurrentView.ID.Connection, new Irc.Actor() { Nickname = CurrentView.ID.Connection.ActualNickname, Hostname = "???", Username = "???" }, CurrentView.ID.Channel, line );
+			OnPrivMsg( CurrentView.ID.Connection, new Irc.Actor() { Nickname = CurrentView.ID.Connection.ActualNickname, Hostname = "???", Username = "???" }, CurrentView.ID.Channel, line );
 			CurrentView.ID.Connection.Send( "PRIVMSG "+CurrentView.ID.Channel+" :"+line );
 		}
 
@@ -110,175 +99,201 @@ namespace UberIRC {
 			BeginInvoke( new Action( () => { if ( CurrentView!=null ) SendAction(line); } ) );
 		}
 
-		void irc_OnChannelMode(IrcConnection connection, Irc.Actor op, string channel, string mode, string param) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
+		public void OnChannelModeChange(IrcConnection connection, Irc.Actor op, string channel, string mode, string param) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
 
-			view.History.Add( new HistoryEntry()
-				{ Nickname  = ""
-				, Timestamp = Timestamp
-				, Message   = op.Nickname + " has set mode " + mode + " " + param
-				, Style     = system
-				});
-			if ( view == CurrentView ) Invalidate();
-		}
-
-		void irc_OnJoin(IrcConnection connection, Irc.Actor who, string channel) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
-
-			view.History.Add( new HistoryEntry()
-				{ Nickname  = ""
-				, Timestamp = Timestamp
-				, Message   = who + " has joined the channel"
-				, Style     = system
-				});
-			if ( view == CurrentView ) Invalidate();
-		}
-
-		void irc_OnKick(IrcConnection connection, Irc.Actor op, string channel, string target, string message) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
-
-			view.History.Add( new HistoryEntry()
-				{ Nickname  = ""
-				, Timestamp = Timestamp
-				, Message   = op.Nickname + " has kicked " + target + " from the channel" + (message=="" ? "" : (" ("+message+")"))
-				, Style     = system
-				});
-			if ( view == CurrentView ) Invalidate();
-		}
-
-		void irc_OnMode(IrcConnection connection, Irc.Actor op, string channel, string mode, string target) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
-
-			view.History.Add( new HistoryEntry()
-				{ Nickname  = ""
-				, Timestamp = Timestamp
-				, Message   = op.Nickname + " has set mode " + mode + " on " + target
-				, Style     = system
-				});
-			if ( view == CurrentView ) Invalidate();
-		}
-
-		void irc_OnNick(IrcConnection connection, Irc.Actor who, string channel, string new_) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
-
-			view.History.Add( new HistoryEntry()
-				{ Nickname  = ""
-				, Timestamp = Timestamp
-				, Message   = who.Nickname + " is now known as " + new_
-				, Style     = system
-				});
-			Invalidate();
-		}
-
-		void irc_OnPart(IrcConnection connection, Irc.Actor who, string channel) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
-
-			view.History.Add( new HistoryEntry()
-				{ Nickname = ""
-				, Timestamp = Timestamp
-				, Message = who + " has left the channel"
-				, Style = system
-				});
-			if ( view == CurrentView ) Invalidate();
-		}
-
-		void irc_OnPrivMsg(IrcConnection connection, Irc.Actor who, string target, string message) {
-			var view = ViewOf(connection,target);
-			if ( view==null ) return;
-
-			var style
-				= connection.ActualNickname == who.Nickname     ? self
-				: message.Contains( connection.ActualNickname ) ? alerted
-				: normal
-				;
-
-			Match m;
-			if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
 				view.History.Add( new HistoryEntry()
-					{ Nickname  = who.Nickname
+					{ Nickname  = ""
 					, Timestamp = Timestamp
-					, Message   = m.Groups["action"].Value
-					, Style     = style
+					, Message   = op.Nickname + " has set mode " + mode + " " + param
+					, Style     = system
 					});
-			} else {
-				view.History.Add( new HistoryEntry()
-					{ Nickname  = "<"+who.Nickname+">"
-					, Timestamp = Timestamp
-					, Message   = message
-					, Style     = style
-					});
-			}
-            if ( view == CurrentView ) Invalidate();
+				if ( view == CurrentView ) Invalidate();
+			});
 		}
 
-		void irc_OnNotice(IrcConnection connection, Irc.Actor who, string target, string message) {
-			var view = ViewOf(connection,target);
-			if ( view==null ) return;
+		public void OnJoin(IrcConnection connection, Irc.Actor who, string channel) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
 
-			var style
-				= connection.ActualNickname == who.Nickname     ? self
-				: message.Contains( connection.ActualNickname ) ? alerted
-				: normal
-				;
-
-			Match m;
-			if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
 				view.History.Add( new HistoryEntry()
-					{ Nickname  = who.Nickname
+					{ Nickname  = ""
 					, Timestamp = Timestamp
-					, Message   = m.Groups["action"].Value
-					, Style     = style
+					, Message   = who + " has joined the channel"
+					, Style     = system
 					});
-			} else {
-				view.History.Add( new HistoryEntry()
-					{ Nickname  = "<"+who.Nickname+">"
-					, Timestamp = Timestamp
-					, Message   = message
-					, Style     = style
-					});
-			}
-            if ( view == CurrentView ) Invalidate();
+				if ( view == CurrentView ) Invalidate();
+			});
 		}
 
-		void irc_OnQuit(IrcConnection connection, Irc.Actor who, string channel, string message) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
+		public void OnKick(IrcConnection connection, Irc.Actor op, string channel, string target, string message) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
 
-			view.History.Add( new HistoryEntry()
-				{ Nickname = ""
-				, Timestamp = Timestamp
-				, Message = who + " has quit " + connection.ConnectionID.Hostname + (message=="" ? "" : (" ("+message+")"))
-				, Style = system
-				});
-			Invalidate();
+				view.History.Add( new HistoryEntry()
+					{ Nickname  = ""
+					, Timestamp = Timestamp
+					, Message   = op.Nickname + " has kicked " + target + " from the channel" + (message=="" ? "" : (" ("+message+")"))
+					, Style     = system
+					});
+				if ( view == CurrentView ) Invalidate();
+			});
 		}
 
-		void irc_OnTopic( IrcConnection connection, Irc.Actor who, string channel, string topic ) {
-			var view = ViewOf(connection,channel);
-			if ( view==null ) return;
+		public void OnModeChange(IrcConnection connection, Irc.Actor op, string channel, string mode, string target) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
 
-			if ( who == null ) {
 				view.History.Add( new HistoryEntry()
-					{ Nickname = "TOPIC"
+					{ Nickname  = ""
 					, Timestamp = Timestamp
-					, Message = topic
-					, Style = system
+					, Message   = op.Nickname + " has set mode " + mode + " on " + target
+					, Style     = system
 					});
-			} else {
+				if ( view == CurrentView ) Invalidate();
+			});
+		}
+
+		public void OnNick(IrcConnection connection, Irc.Actor who, string channel, string new_) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
+
+				view.History.Add( new HistoryEntry()
+					{ Nickname  = ""
+					, Timestamp = Timestamp
+					, Message   = who.Nickname + " is now known as " + new_
+					, Style     = system
+					});
+				Invalidate();
+			});
+		}
+
+		public void OnPart(IrcConnection connection, Irc.Actor who, string channel) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
+
 				view.History.Add( new HistoryEntry()
 					{ Nickname = ""
 					, Timestamp = Timestamp
-					, Message = who.Nickname + " has changed the topic to " + topic
+					, Message = who + " has left the channel"
 					, Style = system
 					});
-			}
-			Invalidate();
+				if ( view == CurrentView ) Invalidate();
+			});
+		}
+
+		public void OnPrivMsg(IrcConnection connection, Irc.Actor who, string target, string message) {
+			Begin(()=>{
+				var view = ViewOf(connection,target);
+				if ( view==null ) return;
+
+				var style
+					= connection.ActualNickname == who.Nickname     ? self
+					: message.Contains( connection.ActualNickname ) ? alerted
+					: normal
+					;
+
+				Match m;
+				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
+					view.History.Add( new HistoryEntry()
+						{ Nickname  = who.Nickname
+						, Timestamp = Timestamp
+						, Message   = m.Groups["action"].Value
+						, Style     = style
+						});
+				} else {
+					view.History.Add( new HistoryEntry()
+						{ Nickname  = "<"+who.Nickname+">"
+						, Timestamp = Timestamp
+						, Message   = message
+						, Style     = style
+						});
+				}
+				if ( view == CurrentView ) Invalidate();
+			});
+		}
+
+		public void OnNotice(IrcConnection connection, Irc.Actor who, string target, string message) {
+			Begin(()=>{
+				var view = ViewOf(connection,target);
+				if ( view==null ) return;
+
+				var style
+					= connection.ActualNickname == who.Nickname     ? self
+					: message.Contains( connection.ActualNickname ) ? alerted
+					: normal
+					;
+
+				Match m;
+				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
+					view.History.Add( new HistoryEntry()
+						{ Nickname  = who.Nickname
+						, Timestamp = Timestamp
+						, Message   = m.Groups["action"].Value
+						, Style     = style
+						});
+				} else {
+					view.History.Add( new HistoryEntry()
+						{ Nickname  = "<"+who.Nickname+">"
+						, Timestamp = Timestamp
+						, Message   = message
+						, Style     = style
+						});
+				}
+				if ( view == CurrentView ) Invalidate();
+			});
+		}
+
+		public void OnQuit(IrcConnection connection, Irc.Actor who, string channel, string message) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
+
+				view.History.Add( new HistoryEntry()
+					{ Nickname = ""
+					, Timestamp = Timestamp
+					, Message = who + " has quit " + connection.ConnectionID.Hostname + (message=="" ? "" : (" ("+message+")"))
+					, Style = system
+					});
+				Invalidate();
+			});
+		}
+
+		public void OnTopic( IrcConnection connection, Irc.Actor who, string channel, string topic ) {
+			Begin(()=>{
+				var view = ViewOf(connection,channel);
+				if ( view==null ) return;
+
+				if ( who == null ) {
+					view.History.Add( new HistoryEntry()
+						{ Nickname = "TOPIC"
+						, Timestamp = Timestamp
+						, Message = topic
+						, Style = system
+						});
+				} else {
+					view.History.Add( new HistoryEntry()
+						{ Nickname = ""
+						, Timestamp = Timestamp
+						, Message = who.Nickname + " has changed the topic to " + topic
+						, Style = system
+						});
+				}
+				Invalidate();
+			});
+		}
+
+		public void OnError( Exception e ) {
+			Begin(()=>{
+				// TODO:  Display ERROR
+			});
 		}
 
 		Channel ViewOf( IrcConnection connection, string channel ) {
