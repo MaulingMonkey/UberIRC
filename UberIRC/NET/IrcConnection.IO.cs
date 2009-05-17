@@ -103,7 +103,7 @@ namespace UberIRC.NET {
 							}
 							break;
 						case "353": // RPL_NAMREPLY (Names list)
-							if ( (match = new Regex(@"^(?'channel'[^: ]+) \:(?'nicks'.+)$").Match(parameters)).Success )
+							if ( (match = new Regex(@"^(?:. )?(?'channel'[^: ]+) \:(?'nicks'.+)$").Match(parameters)).Success )
 							{
 								var channelname = match.Groups["channel"].Value;
 								if (!Channels.ContainsKey(channelname)) break;

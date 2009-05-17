@@ -70,7 +70,8 @@ namespace UberIRC {
 				foreach ( var channel in server.Channels ) {
 					connection.Join( channel.Name );
 					if ( channel.Shortcut == Keys.None ) continue;
-					Shortcuts.Add( channel.Shortcut, () => CurrentView = ViewOf(connection,channel.Name) );
+					string cname = channel.Name;
+					Shortcuts.Add( channel.Shortcut, () => CurrentView = ViewOf(connection,cname) );
 				}
 			}
 		}
