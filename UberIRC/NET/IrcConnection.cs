@@ -69,7 +69,7 @@ namespace UberIRC.NET {
 		}
 
 		class Channel {
-			public Dictionary<String,User> Users = new Dictionary<String,User>();
+			public readonly HashSet<String> Users = new HashSet<String>();
 		}
 
 		public void Dispose() {
@@ -86,11 +86,12 @@ namespace UberIRC.NET {
 		public String ActualNickname { get { return actualNickname; } private set { actualNickname = value; } }
 		public String TargetNickname { get { return targetNickname; } private set { targetNickname = value; } }
 		Encoding         Encoding;
-		HashSet<String>  TargetChannels = new HashSet<String>();
-		Dictionary<String,Channel> Channels = new Dictionary<String,Channel>();
 		bool             AutoRejoin    = true;
 		bool             AutoReconnect = true;
-
+		readonly HashSet<String>            TargetChannels = new HashSet<String>();
+		readonly Dictionary<String,Channel> Channels = new Dictionary<String,Channel>();
+		readonly Dictionary<String,User>    Users    = new Dictionary<String,User>();
+		
 		Channel AddChannel( string id ) {
 			if ( Channels.ContainsKey(id) ) {
 				Channels[id].Users.Clear();
@@ -110,7 +111,7 @@ namespace UberIRC.NET {
 			Parameters     = p;
 			TargetNickname = p.User.Nick;
 			Encoding       = p.Encoding;
-			Listeners = listeners;
+			Listeners      = listeners;
 			BeginReconnect();
 		}
 
@@ -119,7 +120,7 @@ namespace UberIRC.NET {
 		public readonly HashSet<IEventListener> Listeners;
 
 		public IEnumerable<String> WhosIn( string channel ) {
-			if ( Channels.ContainsKey(channel) ) return Channels[channel].Users.Keys;
+			if ( Channels.ContainsKey(channel) ) return Channels[channel].Users;
 			else return new string[]{};
 		}
 
@@ -163,28 +164,28 @@ namespace UberIRC.NET {
 			// Will not kick if message == null
 
 			lock (Lock)
-			if ( Channels.ContainsKey(channel) )
-			{
-				var c = Channels[channel];
-				
-				if ( c.Users.ContainsKey(target) ) {
-					var u = c.Users[target];
-					if ( u.Hostname != null ) {
-						Send( "MODE "+channel+" +b *!*@"+u.Hostname );
-						if ( message != null ) Kick( channel, target, message );
-					} else {
-						u.OnResolveHostname += () => {
-							Send( "MODE "+channel+" +b "+u.Hostname );
-							if ( message != null ) Kick( channel, target, message );
-						};
-						Send("WHOIS "+target);
-					}
-				}
+			if ( target.Contains("!") || target.Contains("@" ) ) { // hostname
+				DoKickBan( channel, null, null, target ); // TODO:  Whine at the user if message!=null that we can only ban, sorry cupcake
+			} else { // nickname
+				if (!Users.ContainsKey(target)) Users.Add(target, new User());
+				var u = Users[target];
+				u.OnResolveHostname += () => DoKickBan( channel, target, message, "*!*@"+u.Hostname );
+				Send("WHOIS "+target);
 			}
-			else
-			{
-				Send("MODE "+channel+" +b "+target);
-				if ( message != null ) Kick( channel, target, message ); // could be a kick mask?
+		}
+		private void DoKickBan( string channel, string target, string message, string hostmask ) {
+			Send( "MODE "+channel+" +b "+hostmask );
+			if ( message != null ) Kick( channel, target, message );
+		}
+		public void UnBan( string channel, string target ) {
+			lock (Lock)
+			if ( target.Contains("!") || target.Contains("@" ) ) { // hostname
+				Send( "MODE "+channel+" -b "+target );
+			} else { // nickname
+				if (!Users.ContainsKey(target)) Users.Add(target, new User());
+				var u = Users[target];
+				u.OnResolveHostname += () => Send( "MODE "+channel+" -b *!*@"+u.Hostname );
+				Send("WHOIS "+target);
 			}
 		}
 

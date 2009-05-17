@@ -100,10 +100,11 @@ namespace UberIRC {
 				, { "nick", ChangeNick }
 				, { "topic", Topic }
 				, { "o/"  , rest => SendMessage("/o/ "+rest) }
-				, { "kick", Kick }
-				, { "ban" , Ban }
+				, { "kick"   , Kick }
+				, { "ban"    , Ban }
 				, { "kickban", KickBan }
-				, { "kb", KickBan }
+				, { "kb"     , KickBan }
+				, { "unban"  , UnBan }
 				, { "mode", ChangeModes }
 				};
 
@@ -199,6 +200,11 @@ namespace UberIRC {
 		void Ban( string p ) {
 			if ( CurrentView == null ) return;
 			CurrentView.ID.Connection.Ban( CurrentView.ID.Channel, p );
+		}
+
+		void UnBan( string p ) {
+			if ( CurrentView == null ) return;
+			CurrentView.ID.Connection.UnBan( CurrentView.ID.Channel, p );
 		}
 
 		void KickBan( string p ) {
