@@ -155,9 +155,11 @@ namespace UberIRC.NET {
 								var newnick = ReadParam(ref param);
 								if ( nick == ActualNickname ) ActualNickname = newnick; // we got renamed!
 								
-								var info = Users[nick];
-								if ( !Users.ContainsKey(newnick) ) Users.Add(newnick,info);
-								Users.Remove(nick);
+								if ( Users.ContainsKey(user) ) {
+									var info = Users[nick];
+									if ( !Users.ContainsKey(newnick) ) Users.Add(newnick,info);
+									Users.Remove(nick);
+								}
 
 								foreach ( var channel in Channels )
 								if ( channel.Value.Users.Contains(nick) )
