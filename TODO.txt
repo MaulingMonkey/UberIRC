@@ -2,7 +2,6 @@ Implement a setting for PMs & NOTICEs:  Show in current view, PMs tab, or in mul
 Merge Irc.Actor and IrcConnection.User (into .User?)
 
 Redo Industry.FX.Font so we can get /semiignore
-Users lists -> Caching user/hostname info + deffered commands (e.g. +b and kick on hostname determination)
 UNDO/REDO
 Uparrow
 I want to click/open URLs :(
