@@ -16,6 +16,7 @@ using Industry;
 using UberIRC.NET;
 
 namespace UberIRC {
+	[System.ComponentModel.DesignerCategory("")]
 	public partial class IrcView : Form, IDisposable {
 		Settings Settings;
 		Dictionary<IrcChannelID,Channel> Views;
@@ -74,6 +75,25 @@ namespace UberIRC {
 					Shortcuts.Add( channel.Shortcut, () => CurrentView = ViewOf(connection,cname) );
 				}
 			}
+		}
+
+		void InitializeComponent() {
+			SuspendLayout();
+			
+			AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			BackColor = System.Drawing.Color.White;
+			ClientSize = new System.Drawing.Size(292, 273);
+			DoubleBuffered = true;
+			Name = "IrcView";
+			Text = "UberIRC";
+
+			Paint    += IrcView_Paint;
+			KeyPress += IrcView_KeyPress;
+			Resize   += IrcView_Resize;
+			KeyDown  += IrcView_KeyDown;
+			
+			ResumeLayout(false);
 		}
 
 		void InitializeShortcutsAndCommands() {
@@ -224,7 +244,7 @@ namespace UberIRC {
 			CurrentView.ID.Connection.ChangeModes( CurrentView.ID.Channel, modes );
 		}
 
-		private void IRCView_Resize(object sender, EventArgs e) {
+		private void IrcView_Resize(object sender, EventArgs e) {
 			foreach ( var view in Views.Values ) view.Input.MaxBounds.Y = ClientSize.Height-100-CurrentView.Margin;
 			Invalidate();
 		}
@@ -232,7 +252,7 @@ namespace UberIRC {
 		bool cursor = true;
 		[Owns] Timer cursorblink;
 
-		private void IRCView_Paint(object sender, PaintEventArgs e) {
+		private void IrcView_Paint(object sender, PaintEventArgs e) {
 			if ( CurrentView == null ) return;
 
 			CurrentView.History.Width  = CurrentView.Input.MaxBounds.Width = ClientSize.Width - 2*CurrentView.Margin;

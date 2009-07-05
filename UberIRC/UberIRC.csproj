@@ -70,32 +70,21 @@
     </Compile>
     <Compile Include="UI\ChatHistory.cs" />
     <Compile Include="UI\IrcView.Channel.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\IrcView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\IrcView.Designer.cs">
-      <DependentUpon>IrcView.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="UI\IrcView.resx">
-      <DependentUpon>IrcView.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <Compile Include="UI\IrcView.IO.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\IrcView.PInvokes.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\IrcView.Style.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\TextBox.cs" />
   </ItemGroup>
