@@ -91,6 +91,7 @@ namespace UberIRC {
 
 		public void Add( HistoryEntry history ) {
 			if (CurrentIndex == History.Count-1) CurrentIndex = History.Count;
+			history.Message = history.Message.Replace("\t","    ");
 			History.Add(history);
 		}
 
