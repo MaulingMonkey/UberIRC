@@ -31,7 +31,7 @@ namespace UberIRC {
 
 		Channel CreateChannel(IrcChannelID id) {
 			var channel = new Channel(id,library,ClientSize);
-			channel.History.Add( new HistoryEntry() { Timestamp = "", Nickname = "CHANNEL", Message = id.Channel, Style = normal });
+			AddHistory( channel, "CHANNEL", "", id.Channel, normal );
 			Views.Add( id, channel );
 			if ( CurrentView == null ) CurrentView = channel;
 			return channel;

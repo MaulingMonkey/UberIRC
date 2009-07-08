@@ -4,8 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Industry;
+using Industry.FX;
 using UberIRC.NET;
 
 namespace UberIRC {
@@ -13,6 +15,37 @@ namespace UberIRC {
 		[Owns] Irc irc;
 
 		void Begin( Action a ) { BeginInvoke(a); }
+
+		void AddHistory( Channel view, string nickname, string timestamp, string message, TextStyle style ) {
+			view.History.Add( new HistoryEntry()
+				{ Nickname  = nickname
+				, Timestamp = timestamp
+				, Message   = new[] { new TextRun() { Font = style.Message.Font, Text = message } }
+				, Style     = style
+				});
+		}
+
+		static readonly Regex reUrlPatterns = new Regex(@"\b(?:([^\s]+?:\/\/[^\s]+?)|(www\.[^\s]+?)|([^\s]+?\.(?:com|net|org)[^\s]*?))(?=\s|$)");
+
+		IEnumerable<TextRun> ToPrettyRuns( string message, TextStyle style ) {
+			int lasturlend = 0;
+
+			foreach ( Match match in reUrlPatterns.Matches(message) ) {
+				if ( lasturlend != match.Index ) yield return new TextRun() { Font = style.Message.Font, Text = message.Substring(lasturlend,match.Index-lasturlend) };
+				yield return new TextRun() { Font = style.Message.LinkFont, Text = message.Substring(match.Index,match.Length) };
+				lasturlend = match.Index + match.Length;
+			}
+			if ( lasturlend != message.Length ) yield return new TextRun() { Font = style.Message.Font, Text = message.Substring(lasturlend) };
+		}
+
+		void AddPrettyHistory( Channel view, string nickname, string timestamp, string message, TextStyle style ) {
+			view.History.Add( new HistoryEntry()
+				{ Nickname  = nickname
+				, Timestamp = timestamp
+				, Message   = ToPrettyRuns(message,style).ToArray()
+				, Style     = style
+				});
+		}
 
 		void OnEnter() {
 			if ( CurrentView == null ) return;
@@ -37,12 +70,7 @@ namespace UberIRC {
 				if ( Commands.ContainsKey(command) ) {
 					Commands[command]( parameters );
 				} else {
-					CurrentView.History.Add( new HistoryEntry()
-						{ Nickname  = "ERROR"
-						, Timestamp = Timestamp
-						, Message   = "Unrecognized command "+command
-						, Style     = commanderror
-						});
+					AddHistory( CurrentView, "ERROR", Timestamp, "Unrecognized command "+command, commanderror );
 				}
 			}
 			else
@@ -104,12 +132,7 @@ namespace UberIRC {
 				var view = ViewOf(connection,channel);
 				if ( view==null ) return;
 
-				view.History.Add( new HistoryEntry()
-					{ Nickname  = ""
-					, Timestamp = Timestamp
-					, Message   = op.Nickname + " has set mode " + mode + " " + param
-					, Style     = system
-					});
+				AddHistory( view, "", Timestamp, op.Nickname + " has set mode " + mode + " " + param, system );
 				if ( view == CurrentView ) Invalidate();
 			});
 		}
@@ -119,12 +142,7 @@ namespace UberIRC {
 				var view = ViewOf(connection,channel);
 				if ( view==null ) return;
 
-				view.History.Add( new HistoryEntry()
-					{ Nickname  = ""
-					, Timestamp = Timestamp
-					, Message   = who + " has joined the channel"
-					, Style     = system
-					});
+				AddHistory( view, "", Timestamp, who + " has joined the channel", system );
 				if ( view == CurrentView ) Invalidate();
 			});
 		}
@@ -134,12 +152,7 @@ namespace UberIRC {
 				var view = ViewOf(connection,channel);
 				if ( view==null ) return;
 
-				view.History.Add( new HistoryEntry()
-					{ Nickname  = ""
-					, Timestamp = Timestamp
-					, Message   = op.Nickname + " has kicked " + target + " from the channel" + (message=="" ? "" : (" ("+message+")"))
-					, Style     = system
-					});
+				AddHistory( view, "", Timestamp, op.Nickname + " has kicked " + target + " from the channel" + (message=="" ? "" : (" ("+message+")")), system );
 				if ( view == CurrentView ) Invalidate();
 			});
 		}
@@ -149,12 +162,7 @@ namespace UberIRC {
 				var view = ViewOf(connection,channel);
 				if ( view==null ) return;
 
-				view.History.Add( new HistoryEntry()
-					{ Nickname  = ""
-					, Timestamp = Timestamp
-					, Message   = op.Nickname + " has set mode " + mode + " on " + target
-					, Style     = system
-					});
+				AddHistory( view, "", Timestamp, op.Nickname + " has set mode " + mode + " on " + target, system );
 				if ( view == CurrentView ) Invalidate();
 			});
 		}
@@ -164,12 +172,7 @@ namespace UberIRC {
 				var view = ViewOf(connection,channel);
 				if ( view==null ) return;
 
-				view.History.Add( new HistoryEntry()
-					{ Nickname  = ""
-					, Timestamp = Timestamp
-					, Message   = who.Nickname + " is now known as " + new_
-					, Style     = system
-					});
+				AddHistory( view, "", Timestamp, who.Nickname + " is now known as " + new_, system );
 				Invalidate();
 			});
 		}
@@ -179,12 +182,7 @@ namespace UberIRC {
 				var view = ViewOf(connection,channel);
 				if ( view==null ) return;
 
-				view.History.Add( new HistoryEntry()
-					{ Nickname = ""
-					, Timestamp = Timestamp
-					, Message = who + " has left the channel"
-					, Style = system
-					});
+				AddHistory( view, "", Timestamp, who + " has left the channel", system );
 				if ( view == CurrentView ) Invalidate();
 			});
 		}
@@ -202,19 +200,9 @@ namespace UberIRC {
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
-					view.History.Add( new HistoryEntry()
-						{ Nickname  = who.Nickname
-						, Timestamp = Timestamp
-						, Message   = m.Groups["action"].Value
-						, Style     = style
-						});
+					AddPrettyHistory( view, who.Nickname, Timestamp, m.Groups["action"].Value, style );
 				} else {
-					view.History.Add( new HistoryEntry()
-						{ Nickname  = "<"+who.Nickname+">"
-						, Timestamp = Timestamp
-						, Message   = message
-						, Style     = style
-						});
+					AddPrettyHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
 				}
 				if ( view == CurrentView ) Invalidate();
 			});
@@ -233,19 +221,9 @@ namespace UberIRC {
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
-					view.History.Add( new HistoryEntry()
-						{ Nickname  = who.Nickname
-						, Timestamp = Timestamp
-						, Message   = m.Groups["action"].Value
-						, Style     = style
-						});
+					AddHistory( view, who.Nickname, Timestamp, m.Groups["action"].Value, style );
 				} else {
-					view.History.Add( new HistoryEntry()
-						{ Nickname  = "<"+who.Nickname+">"
-						, Timestamp = Timestamp
-						, Message   = message
-						, Style     = style
-						});
+					AddHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
 				}
 				if ( view == CurrentView ) Invalidate();
 			});
@@ -256,12 +234,7 @@ namespace UberIRC {
 				var view = ViewOf(connection,channel);
 				if ( view==null ) return;
 
-				view.History.Add( new HistoryEntry()
-					{ Nickname = ""
-					, Timestamp = Timestamp
-					, Message = who + " has quit " + connection.ConnectionID.Hostname + (message=="" ? "" : (" ("+message+")"))
-					, Style = system
-					});
+				AddHistory( view, "", Timestamp, who + " has quit " + connection.ConnectionID.Hostname + (message=="" ? "" : (" ("+message+")")), system );
 				Invalidate();
 			});
 		}
@@ -272,19 +245,9 @@ namespace UberIRC {
 				if ( view==null ) return;
 
 				if ( who == null ) {
-					view.History.Add( new HistoryEntry()
-						{ Nickname = "TOPIC"
-						, Timestamp = Timestamp
-						, Message = topic
-						, Style = system
-						});
+					AddHistory( view, "TOPIC", Timestamp, topic, system );
 				} else {
-					view.History.Add( new HistoryEntry()
-						{ Nickname = ""
-						, Timestamp = Timestamp
-						, Message = who.Nickname + " has changed the topic to " + topic
-						, Style = system
-						});
+					AddHistory( view, "", Timestamp, who.Nickname + " has changed the topic to " + topic, system );
 				}
 				Invalidate();
 			});

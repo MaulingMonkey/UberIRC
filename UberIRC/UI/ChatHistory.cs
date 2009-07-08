@@ -11,11 +11,28 @@ using Industry.FX;
 using Font = Industry.FX.Font;
 
 namespace UberIRC {
+	public struct MessageColumnStyle {
+		public int                 Width;
+		public Font                Font;
+		public Font                LinkFont;
+		public HorizontalAlignment HorizontalAlignment;
+		public VerticalAlignment   VerticalAlignment  ;
+	}
+
 	public struct ColumnStyle {
 		public int                 Width; // pixels
 		public Font                Font;
 		public HorizontalAlignment HorizontalAlignment;
 		public VerticalAlignment   VerticalAlignment  ;
+
+		public static implicit operator ColumnStyle( MessageColumnStyle mcs ) {
+			return new ColumnStyle()
+				{ Width = mcs.Width
+				, Font  = mcs.Font
+				, HorizontalAlignment = mcs.HorizontalAlignment
+				, VerticalAlignment   = mcs.VerticalAlignment
+				};
+		}
 	}
 
 	public class TextStyle {
@@ -23,15 +40,15 @@ namespace UberIRC {
 		public int TimestampNicknameMargin = 4;
 		public ColumnStyle Nickname;
 		public int NicknameMessageMargin = 4;
-		public ColumnStyle Message;
+		public MessageColumnStyle Message;
 	}
 
 	public struct HistoryEntry {
 		public TextStyle Style;
 
-		public String Timestamp;
-		public String Nickname;
-		public String Message;
+		public String    Timestamp;
+		public String    Nickname;
+		public TextRun[] Message;
 	}
 
 	public class ChatHistory : RAII {
@@ -91,7 +108,7 @@ namespace UberIRC {
 
 		public void Add( HistoryEntry history ) {
 			if (CurrentIndex == History.Count-1) CurrentIndex = History.Count;
-			history.Message = history.Message.Replace("\t","    ");
+			for ( int i = 0 ; i < history.Message.Length ; ++i ) history.Message[i].Text = history.Message[i].Text.Replace("\t","    ");
 			History.Add(history);
 		}
 
@@ -134,14 +151,18 @@ namespace UberIRC {
 				var nickname  = ItemizeLinesOf(entry.Style.Nickname ,entry.Nickname );
 				var message   = ItemizeLinesOf(entry.Style.Message  ,entry.Message  );
 
+				var measure_timestamp = entry.Style.Timestamp.Font.MeasureLines(timestamp);
+				var measure_nickname  = entry.Style.Nickname .Font.MeasureLines(nickname );
+				var measure_message   =                       Font.MeasureLines(message  );
+
 				int height   = 0;
 				int advancey = 0;
-				height = Math.Max(height,entry.Style.Timestamp.Font.MeasureLines(timestamp).Bounds.Height);
-				height = Math.Max(height,entry.Style.Nickname .Font.MeasureLines(nickname ).Bounds.Height);
-				height = Math.Max(height,entry.Style.Message  .Font.MeasureLines(message  ).Bounds.Height);
-				advancey = Math.Max(advancey,entry.Style.Timestamp.Font.MeasureLines(timestamp).Advance.Y);
-				advancey = Math.Max(advancey,entry.Style.Nickname .Font.MeasureLines(nickname ).Advance.Y);
-				advancey = Math.Max(advancey,entry.Style.Message  .Font.MeasureLines(message  ).Advance.Y);
+				height = Math.Max(height,measure_timestamp.Bounds.Height);
+				height = Math.Max(height,measure_nickname .Bounds.Height);
+				height = Math.Max(height,measure_message  .Bounds.Height);
+				advancey = Math.Max(advancey,measure_timestamp.Advance.Y);
+				advancey = Math.Max(advancey,measure_nickname .Advance.Y);
+				advancey = Math.Max(advancey,measure_message  .Advance.Y);
 				if ( i == CurrentIndex ) advancey = height;
 				y -= advancey;
 
@@ -177,14 +198,18 @@ namespace UberIRC {
 				var nickname  = ItemizeLinesOf(entry.Style.Nickname ,entry.Nickname );
 				var message   = ItemizeLinesOf(entry.Style.Message  ,entry.Message  );
 
+				var measure_timestamp = entry.Style.Timestamp.Font.MeasureLines(timestamp);
+				var measure_nickname  = entry.Style.Nickname .Font.MeasureLines(nickname );
+				var measure_message   =                       Font.MeasureLines(message  );
+
 				int height   = 0;
 				int advancey = 0;
-				height = Math.Max(height,entry.Style.Timestamp.Font.MeasureLines(timestamp).Bounds.Height);
-				height = Math.Max(height,entry.Style.Nickname .Font.MeasureLines(nickname ).Bounds.Height);
-				height = Math.Max(height,entry.Style.Message  .Font.MeasureLines(message  ).Bounds.Height);
-				advancey = Math.Max(advancey,entry.Style.Timestamp.Font.MeasureLines(timestamp).Advance.Y);
-				advancey = Math.Max(advancey,entry.Style.Nickname .Font.MeasureLines(nickname ).Advance.Y);
-				advancey = Math.Max(advancey,entry.Style.Message  .Font.MeasureLines(message  ).Advance.Y);
+				height = Math.Max(height,measure_timestamp.Bounds.Height);
+				height = Math.Max(height,measure_nickname .Bounds.Height);
+				height = Math.Max(height,measure_message  .Bounds.Height);
+				advancey = Math.Max(advancey,measure_timestamp.Advance.Y);
+				advancey = Math.Max(advancey,measure_nickname .Advance.Y);
+				advancey = Math.Max(advancey,measure_message  .Advance.Y);
 
 				dy += indexdir*advancey;
 			}
@@ -203,6 +228,9 @@ namespace UberIRC {
 		public IEnumerable<String> ItemizeLinesOf( ColumnStyle style, string text ) {
 			return style.Font.ToLines( text, style.Width );
 		}
+		public IEnumerable<TextRunLine> ItemizeLinesOf( ColumnStyle style, TextRun[] text ) {
+			return new Paragraph(text).ToLines(style.Width);
+		}
 
 		public void RenderColumnTo( Graphics fx, Point position, int height, ColumnStyle style, IEnumerable<String> text ) {
 			int x = position.X;
@@ -212,6 +240,9 @@ namespace UberIRC {
 				style.Font.RenderLineTo(fx, line, new Rectangle(x,y,style.Width,height), style.HorizontalAlignment, style.VerticalAlignment);
 				y += style.Font.MeasureLine(line).Advance.Y;
 			}
+		}
+		public void RenderColumnTo( Graphics fx, Point position, int height, ColumnStyle style, IEnumerable<TextRunLine> text ) {
+			Font.RenderLinesTo( fx, text, new Rectangle(position.X,position.Y,style.Width,height), style.HorizontalAlignment, style.VerticalAlignment );
 		}
 	}
 }
