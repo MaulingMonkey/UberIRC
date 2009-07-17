@@ -25,7 +25,7 @@ namespace UberIRC {
 				});
 		}
 
-		static readonly Regex reUrlPatterns = new Regex(@"\b(?:([^\s]+?:\/\/[^\s]+?)|(www\.[^\s]+?)|([^\s]+?\.(?:com|net|org)[^\s]*?))(?=\s|$)");
+		static readonly Regex reUrlPatterns = new Regex(@"\b(?:([^\s]+?:\/\/[^\s]+?)|([^\s]+?\.(?:com|net|org|edu|gov|mil|info|biz)[^\s]*?)|(www\.[^\s]+?))(?=\s|$)");
 
 		IEnumerable<TextRun> ToPrettyRuns( string message, TextStyle style ) {
 			int lasturlend = 0;
