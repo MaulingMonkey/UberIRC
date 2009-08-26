@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Industry;
 using Industry.FX;
 using Font = Industry.FX.Font;
-using System.Drawing.Imaging;
 
 namespace UberIRC {
 	public struct MessageColumnStyle {
@@ -62,10 +62,12 @@ namespace UberIRC {
 		Rectangle bounds;
 
 		void Invalidate() {
-			foreach ( var entry in History ) {
-				if ( entry.RenderCache != null ) entry.RenderCache.Dispose();
-				entry.RenderCache = null;
-			}
+			foreach ( var entry in History ) DisposeOf( ref entry.RenderCache );
+		}
+
+		void DisposeOf<T>( ref T value ) where T : class, IDisposable {
+			if ( value != null ) value.Dispose();
+			value = null;
 		}
 
 		public Rectangle Bounds {
@@ -100,7 +102,6 @@ namespace UberIRC {
 		}
 
 		List<Entry> History;
-		int FrontIndex   = -1;
 		int CurrentIndex = -1;
 
 		public ChatHistory() {
@@ -149,7 +150,7 @@ namespace UberIRC {
 			advancey = Math.Max(advancey,measure_nickname .Advance.Y);
 			advancey = Math.Max(advancey,measure_message  .Advance.Y);
 			
-			extentry.RenderCache = new Bitmap(Bounds.Width,height);
+			extentry.RenderCache = new Bitmap(Bounds.Width,height,PixelFormat.Format32bppArgb);
 			using ( var fx = Graphics.FromImage(extentry.RenderCache) ) {
 				int x = 0, y = 0;
 				RenderColumnTo( fx, new Point(x,y), height, entry.Style.Timestamp, timestamp ); x += entry.Style.Timestamp.Width; x += entry.Style.TimestampNicknameMargin;
@@ -165,7 +166,8 @@ namespace UberIRC {
 
 			var dest = Bounds;
 			int y = dest.Bottom-1;
-			for ( int i = start ; y>=0 && i > end ; --i ) {
+			int i;
+			for ( i = start ; y>=0 && i > end ; --i ) {
 				Entry     extentry = History[i];
 				HistoryEntry entry = History[i].Base;
 
@@ -178,6 +180,7 @@ namespace UberIRC {
 				int x = dest.Left;
 				fx.DrawImage( extentry.RenderCache, new Point(x,y) );
 			}
+			for ( ; i > 0 ; --i ) DisposeOf( ref History[i].RenderCache );
 		}
 
 		public IEnumerable<String> ItemizeLinesOf( ColumnStyle style, string text ) {
