@@ -88,10 +88,11 @@ namespace UberIRC {
 			Name = "IrcView";
 			Text = "UberIRC";
 
-			Paint    += IrcView_Paint;
-			KeyPress += IrcView_KeyPress;
-			Resize   += IrcView_Resize;
-			KeyDown  += IrcView_KeyDown;
+			Paint     += IrcView_Paint;
+			KeyPress  += IrcView_KeyPress;
+			Resize    += IrcView_Resize;
+			KeyDown   += IrcView_KeyDown;
+			MouseDown += IrcView_MouseDown;
 			
 			ResumeLayout(false);
 		}
@@ -299,6 +300,11 @@ namespace UberIRC {
 				Invalidate();
 				break;
 			}
+		}
+
+		void IrcView_MouseDown(object sender, MouseEventArgs e) {
+			if ( CurrentView == null ) return;
+			if ( e.Button == MouseButtons.Left ) CurrentView.History.ClickAt(e.X,e.Y);
 		}
 	}
 }

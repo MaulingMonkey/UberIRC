@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 using Industry;
 using Industry.FX;
 using UberIRC.NET;
+using System.Web;
+using System.Diagnostics;
 
 namespace UberIRC {
 	public partial class IrcView : NET.IEventListener {
@@ -32,7 +34,14 @@ namespace UberIRC {
 
 			foreach ( Match match in reUrlPatterns.Matches(message) ) {
 				if ( lasturlend != match.Index ) yield return new TextRun() { Font = style.Message.Font, Text = message.Substring(lasturlend,match.Index-lasturlend) };
-				yield return new TextRun() { Font = style.Message.LinkFont, Text = message.Substring(match.Index,match.Length) };
+				var command = new Action(() => {
+					Process process = new Process();
+					process.StartInfo.FileName = "rundll32.exe";
+					process.StartInfo.Arguments = "url.dll,FileProtocolHandler " + match.Value;
+					process.StartInfo.UseShellExecute = true;
+					process.Start();
+				});
+				yield return new TextRun() { Font = style.Message.LinkFont, Text = match.Value, Tag = command };
 				lasturlend = match.Index + match.Length;
 			}
 			if ( lasturlend != message.Length ) yield return new TextRun() { Font = style.Message.Font, Text = message.Substring(lasturlend) };

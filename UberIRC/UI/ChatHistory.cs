@@ -57,6 +57,12 @@ namespace UberIRC {
 			public HistoryEntry Base;
 			public Bitmap       RenderCache;
 			public int          Advance, Height;
+
+			public object PickTagAt( int x, int y ) {
+				x -= (Base.Style.Timestamp.Width + Base.Style.TimestampNicknameMargin + Base.Style.Nickname.Width + Base.Style.NicknameMessageMargin);
+				var message = ItemizeLinesOf(Base.Style.Message, Base.Message );
+				return Font.PickTagAt( message, x, y );
+			}
 		}
 
 		Rectangle bounds;
@@ -116,9 +122,6 @@ namespace UberIRC {
 		public void PageUp() { CurrentIndex = Math.Max(0,CurrentIndex-10); }
 		public void PageDown() { CurrentIndex = Math.Min(History.Count-1,CurrentIndex+10); }
 
-		public void RenderTo( Graphics target ) {
-			RenderLinesTo(target,CurrentIndex,-1);
-		}
 		void UpdateLineCache( int index ) {
 			Entry extentry = History[index];
 			if ( extentry.RenderCache != null ) return; // already up to date
@@ -159,7 +162,10 @@ namespace UberIRC {
 			extentry.Advance = advancey;
 			extentry.Height  = height;
 		}
-		void RenderLinesTo( Graphics fx, int start, int end ) {
+		public void RenderTo( Graphics fx ) {
+			var start = CurrentIndex;
+			var end   = -1;
+
 			if ( start == -1 ) return;
 			Debug.Assert( start>end ); // bottom to top my friend!
 
@@ -179,11 +185,30 @@ namespace UberIRC {
 				fx.DrawImage( extentry.RenderCache, new Point(x,y) );
 			}
 		}
+		public void ClickAt( int x, int y ) {
+			if ( CurrentIndex == -1 ) return;
 
-		public IEnumerable<String> ItemizeLinesOf( ColumnStyle style, string text ) {
+			int yr = Bounds.Bottom-1;
+			for ( int i = CurrentIndex ; yr >= 0 && i > -1 ; --i ) {
+				Entry     extentry = History[i];
+				HistoryEntry entry = History[i].Base;
+
+				UpdateLineCache(i);
+				int height   = extentry.Height;
+				int advancey = extentry.Advance;
+				if ( i == CurrentIndex ) advancey = height;
+				yr -= advancey;
+
+				object tag = extentry.PickTagAt(x-0,y-yr);
+				Action action;
+				if ( null != (action = tag as Action) ) action();
+			}
+		}
+
+		public static IEnumerable<String> ItemizeLinesOf( ColumnStyle style, string text ) {
 			return style.Font.ToLines( text, style.Width );
 		}
-		public IEnumerable<TextRunLine> ItemizeLinesOf( ColumnStyle style, TextRun[] text ) {
+		public static IEnumerable<TextRunLine> ItemizeLinesOf( ColumnStyle style, TextRun[] text ) {
 			return new Paragraph(text).ToLines(style.Width);
 		}
 
