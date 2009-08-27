@@ -173,6 +173,7 @@ namespace UberIRC {
 			var dest = Bounds;
 			int y = dest.Bottom-1;
 			int i;
+			for ( i = History.Count-1 ; i > start ; --i ) DisposeOf( ref History[i].RenderCache );
 			for ( i = start ; y>=0 && i > end ; --i ) {
 				Entry     extentry = History[i];
 				HistoryEntry entry = History[i].Base;
@@ -186,7 +187,7 @@ namespace UberIRC {
 				int x = dest.Left;
 				fx.DrawImage( extentry.RenderCache, new Point(x,y) );
 			}
-			for ( ; i > 0 ; --i ) DisposeOf( ref History[i].RenderCache );
+			for ( ; i > end ; --i ) DisposeOf( ref History[i].RenderCache );
 		}
 		public void ClickAt( int x, int y ) {
 			if ( CurrentIndex == -1 ) return;

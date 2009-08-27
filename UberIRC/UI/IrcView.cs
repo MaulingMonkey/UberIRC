@@ -58,7 +58,7 @@ namespace UberIRC {
 			irc.Listeners.Add(this);
 
 			cursorblink = new Timer() { Interval = 500 };
-			cursorblink.Tick += (o,args) => { cursor = !cursor; Invalidate(); };
+			cursorblink.Tick += (o,args) => { cursor = !cursor; Invalidate( CurrentView.Input.Bounds ); };
 			cursorblink.Start();
 
 			InitializeComponent();
@@ -259,7 +259,7 @@ namespace UberIRC {
 			CurrentView.History.Width  = CurrentView.Input.MaxBounds.Width = ClientSize.Width - 2*CurrentView.Margin;
 			CurrentView.History.Height = CurrentView.Input.Bounds.Top - CurrentView.History.Bounds.Top - 2*CurrentView.Margin - 1;
 
-			CurrentView.History.RenderTo( e.Graphics );
+			if ( e.ClipRectangle.IntersectsWith(CurrentView.History.Bounds) ) CurrentView.History.RenderTo( e.Graphics );
 			e.Graphics.DrawLine
 				( new Pen(Color.FromArgb(unchecked((int)0xFFBBBBBBu)))
 				, new Point
