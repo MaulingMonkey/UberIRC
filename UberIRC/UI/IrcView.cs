@@ -58,7 +58,7 @@ namespace UberIRC {
 			irc.Listeners.Add(this);
 
 			cursorblink = new Timer() { Interval = 500 };
-			cursorblink.Tick += (o,args) => { cursor = !cursor; Invalidate( CurrentView.Input.Bounds ); };
+			cursorblink.Tick += (o,args) => { cursor = !cursor; if ( CurrentView != null ) Invalidate( CurrentView.Input.Bounds ); };
 			cursorblink.Start();
 
 			InitializeComponent();
