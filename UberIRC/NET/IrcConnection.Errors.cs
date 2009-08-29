@@ -12,7 +12,7 @@ namespace UberIRC.NET {
 
 		void Handle( Exception e ) {
 			try {
-				throw e;
+				foreach ( var l in Listeners ) l.OnConnectionError(this,e);
 			} catch ( SocketException se ) {
 				Handle(se.SocketErrorCode);
 			} catch ( ObjectDisposedException ) {

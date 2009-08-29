@@ -25,23 +25,44 @@ namespace UberIRC {
 				, Message   = new[] { new TextRun() { Font = style.Message.Font, Text = message } }
 				, Style     = style
 				});
+			Invalidate();
 		}
 
-		static readonly Regex reUrlPatterns = new Regex(@"\b(?:([^\s]+?:\/\/[^\s]+?)|([^\s]+?\.(?:com|net|org|edu|gov|mil|info|biz)[^\s]*?)|(www\.[^\s]+?))(?=\s|$)");
+		const string fUrlProtocol = @"([^\s]+?:\/\/[^\s]+?)";
+		const string fUrlTLD      = @"([^\s]+?\.(?:com|net|org|edu|gov|mil|info|biz)[^\s]*?)";
+		const string fUrlBLD      = @"((?:www|ftp)\.[^\s]+?)";
+
+		static readonly Regex reUrlProtocol = new Regex("^"+fUrlProtocol);
+		static readonly Regex reUrlPatterns = new Regex
+			(@"\b(?:" + fUrlProtocol
+			+ "|"  + fUrlTLD
+			+ "|"  + fUrlBLD
+			+@")(?=\s|$)"
+			);
+
+		string GuessAndPrependProtocol( string url ) {
+			Match m = reUrlProtocol.Match(url);
+			
+			if ( m.Success ) return url;
+			else if ( url.StartsWith("www.") ) return "http://"+url;
+			else if ( url.StartsWith("ftp.") ) return "ftp://"+url;
+			else return "http://"+url;
+		}
 
 		IEnumerable<TextRun> ToPrettyRuns( string message, TextStyle style ) {
 			int lasturlend = 0;
 
 			foreach ( Match match in reUrlPatterns.Matches(message) ) {
+				string url = match.Value;
 				if ( lasturlend != match.Index ) yield return new TextRun() { Font = style.Message.Font, Text = message.Substring(lasturlend,match.Index-lasturlend) };
 				var command = new Action(() => {
 					Process process = new Process();
 					process.StartInfo.FileName = "rundll32.exe";
-					process.StartInfo.Arguments = "url.dll,FileProtocolHandler " + match.Value;
+					process.StartInfo.Arguments = "url.dll,FileProtocolHandler " + GuessAndPrependProtocol(url);
 					process.StartInfo.UseShellExecute = true;
 					process.Start();
 				});
-				yield return new TextRun() { Font = style.Message.LinkFont, Text = match.Value, Tag = command };
+				yield return new TextRun() { Font = style.Message.LinkFont, Text = url, Tag = command };
 				lasturlend = match.Index + match.Length;
 			}
 			if ( lasturlend != message.Length ) yield return new TextRun() { Font = style.Message.Font, Text = message.Substring(lasturlend) };
@@ -262,9 +283,22 @@ namespace UberIRC {
 			});
 		}
 
-		public void OnError( Exception e ) {
+		public void OnRecvParseError( IrcConnection connection, string rawline, Exception e ) {
 			Begin(()=>{
-				// TODO:  Display ERROR
+				var view = ViewOf(connection,"Error Log");
+				AddHistory( view, "Exception"    , Timestamp, e.GetType().Name + " thrown during parsing of recieved data", alerted );
+				AddHistory( view, "Recieved Data", Timestamp, rawline, normal );
+				AddHistory( view, "Message"      , Timestamp, e.Message, normal );
+				Invalidate();
+			});
+		}
+
+		public void OnConnectionError( IrcConnection connection, Exception e ) {
+			Begin(()=>{
+				var view = ViewOf(connection,"Error Log");
+				AddHistory( view, "Exception"    , Timestamp, e.GetType().Name + " thrown handling of connection", alerted );
+				AddHistory( view, "Message"      , Timestamp, e.Message   , normal );
+				AddHistory( view, "Backtrace"    , Timestamp, e.StackTrace, normal );
 			});
 		}
 

@@ -71,174 +71,175 @@ namespace UberIRC.NET {
 
 					//if (OnRecieve != null) OnRecieve(s);
 					Match match;
-					if ( ( match = new Regex(@"^PING(.*)$").Match(s)).Success ) {
-						var code = match.Groups[1].Value;
-						Send( "PONG" + code );
-					} else if ( (match = new Regex(@"^\:([^ ]+) (\d\d\d) [^: ]+ \:?(.*)$").Match(s)).Success ) {
-						var sender     = match.Groups[1].Value;
-						var code       = match.Groups[2].Value;
-						var parameters = match.Groups[3].Value;
-						switch (code) {
-						case "001": // Welcome
-							Registered = true;
-							foreach ( string channel in TargetChannels ) Send("JOIN "+(channel.StartsWith("#")?channel:"#"+channel));
-							break;
-						case "311": // RPL_WHOISUSER "<nick> <user> <host> * :<real name>"
-						case "314": // RPL_WHOWASUSER "<nick> <user> <host> * :<real name>"
-							if ( (match = new Regex(@"^([^ ]+) ([^ ]+) ([^ ]+) \* \:(.+)$").Match(parameters)).Success ) {
-								var nick = match.Groups[1].Value;
-								var user = match.Groups[2].Value;
-								var host = match.Groups[3].Value;
-								var real = match.Groups[4].Value;
+					try {
+						if ( ( match = new Regex(@"^PING(.*)$").Match(s)).Success ) {
+							var code = match.Groups[1].Value;
+							Send( "PONG" + code );
+						} else if ( (match = new Regex(@"^\:([^ ]+) (\d\d\d) [^: ]+ \:?(.*)$").Match(s)).Success ) {
+							var sender     = match.Groups[1].Value;
+							var code       = match.Groups[2].Value;
+							var parameters = match.Groups[3].Value;
+							switch (code) {
+							case "001": // Welcome
+								Registered = true;
+								foreach ( string channel in TargetChannels ) Send("JOIN "+(channel.StartsWith("#")?channel:"#"+channel));
+								break;
+							case "311": // RPL_WHOISUSER "<nick> <user> <host> * :<real name>"
+							case "314": // RPL_WHOWASUSER "<nick> <user> <host> * :<real name>"
+								if ( (match = new Regex(@"^([^ ]+) ([^ ]+) ([^ ]+) \* \:(.+)$").Match(parameters)).Success ) {
+									var nick = match.Groups[1].Value;
+									var user = match.Groups[2].Value;
+									var host = match.Groups[3].Value;
+									var real = match.Groups[4].Value;
 
-								if ( Users.ContainsKey(nick) ) Users[nick].Hostname = host;
+									if ( Users.ContainsKey(nick) ) Users[nick].Hostname = host;
+								}
+								break;
+							case "331": // RPL_NOTOPIC
+							case "332": // RPL_TOPIC
+								if ( (match = new Regex(@"^(?'channel'[^ ]+) \:?(?'topic'.+)$").Match(parameters)).Success ) {
+									var channel = match.Groups["channel"].Value;
+									var topic   = match.Groups["topic"].Value;
+									foreach ( var l in Listeners ) l.OnTopic( this, null, channel, topic );
+								}
+								break;
+							case "353": // RPL_NAMREPLY (Names list)
+								if ( (match = new Regex(@"^(?:. )?(?'channel'[^: ]+) \:(?'nicks'.+)$").Match(parameters)).Success )
+								{
+									var channelname = match.Groups["channel"].Value;
+									if (!Channels.ContainsKey(channelname)) break;
+									var channel     = Channels[channelname];
+									var nicks       = match.Groups["nicks"].Value.Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
+									
+									foreach ( string nick_ in nicks ) {
+										string nick;
+										switch ( nick_[0] ) {
+										case '@':
+										case '%':
+										case '+':
+											nick = nick_.Substring(1);
+											break;
+										default:
+											nick = nick_;
+											break;
+										}
+										
+										channel.Users.Add( nick );
+										if (!Users.ContainsKey(nick)) Users.Add(nick,new User());
+									}
+								}
+								break;
+							case "366": // RPL_ENDOFNAMES (End of names list)
+								break;
+							case "401": // RPL_NOSUCHNICK "<nickname> :No such nick/channel"
+								Send( "WHOWAS "+ReadParam(ref parameters) );
+								break;
+							case "406": { // RPL_WASNOSUCHNICK "<nickname> :There was no such nickname"
+								var nick = ReadParam(ref parameters);
+								if ( Users.ContainsKey(nick) ) Users.Remove(nick);
+								break;
+							} case "433": // Nick already in use
+								ActualNickname = ActualNickname + "_";
+								Send( "NICK "+ActualNickname); // try a different one
+								break;
 							}
-							break;
-						case "331": // RPL_NOTOPIC
-						case "332": // RPL_TOPIC
-							if ( (match = new Regex(@"^(?'channel'[^ ]+) \:?(?'topic'.+)$").Match(parameters)).Success ) {
-								var channel = match.Groups["channel"].Value;
-								var topic   = match.Groups["topic"].Value;
-								foreach ( var l in Listeners ) l.OnTopic( this, null, channel, topic );
-							}
-							break;
-						case "353": // RPL_NAMREPLY (Names list)
-							if ( (match = new Regex(@"^(?:. )?(?'channel'[^: ]+) \:(?'nicks'.+)$").Match(parameters)).Success )
-							{
-								var channelname = match.Groups["channel"].Value;
-								if (!Channels.ContainsKey(channelname)) break;
-								var channel     = Channels[channelname];
-								var nicks       = match.Groups["nicks"].Value.Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
-								
-								foreach ( string nick_ in nicks ) {
-									string nick;
-									switch ( nick_[0] ) {
-									case '@':
-									case '%':
-									case '+':
-										nick = nick_.Substring(1);
+						} else if ( (match = new Regex(@"^\:?(?'nick'[^ !]+)!(?'user'[^ @]+)@(?'host'[^ ]+) (?'action'[^ ]+)(?: (?'params'.+))?$").Match(s)).Success ) {
+							var nick   = match.Groups["nick"].Value;
+							var user   = match.Groups["user"].Value;
+							var host   = match.Groups["host"].Value;
+							var actor  = new Irc.Actor() { Nickname = nick, Username = user, Hostname = host };
+							var action = match.Groups["action"].Value;
+							var param  = match.Groups["params"].Value;
+
+							switch ( action ) {
+								case "NICK": {
+									var newnick = ReadParam(ref param);
+									if ( nick == ActualNickname ) ActualNickname = newnick; // we got renamed!
+									
+									if ( Users.ContainsKey(nick) ) {
+										var info = Users[nick];
+										if ( !Users.ContainsKey(newnick) ) Users.Add(newnick,info);
+										Users.Remove(nick);
+									}
+
+									foreach ( var channel in Channels )
+									if ( channel.Value.Users.Contains(nick) )
+									{
+										channel.Value.Users.Remove(nick);
+										channel.Value.Users.Add(newnick);
+										foreach ( var l in Listeners ) l.OnNick( this, actor, channel.Key, newnick );
+									}
+									break;
+								} case "JOIN": {
+									var channel = ReadParam(ref param);
+									if ( nick == ActualNickname ) AddChannel(channel); // we joined a channel!
+									if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Add(nick);
+									foreach ( var l in Listeners ) l.OnJoin( this, actor, channel );
+									break;
+								} case "PART": {
+									var channel = ReadParam(ref param);
+									if ( nick == ActualNickname ) RemoveChannel(channel); // we left a channel!
+									if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Remove(nick);
+									foreach ( var l in Listeners ) l.OnPart( this, actor, channel );
+									break;
+								} case "QUIT": {
+									var message = TrimColon(param);
+
+									foreach ( var l in Listeners )
+									foreach ( var channel in Channels )
+									if ( channel.Value.Users.Contains(nick) )
+									{
+										l.OnQuit( this, actor, channel.Key, message );
+									}
+									break;
+								} case "KICK": {
+									var channel = ReadParam(ref param);
+									var target  = ReadParam(ref param);
+									var message = TrimColon(param);
+									if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Remove(target);
+									if ( target == ActualNickname ) { // we were kicked from a channel!
+										RemoveChannel( channel );
+										if ( AutoRejoin ) Join( channel );
+									}
+									foreach ( var l in Listeners ) l.OnKick( this, actor, channel, target, message );
+									break;
+								} case "PRIVMSG": {
+									var target = ReadParam(ref param);
+									var message = TrimColon(param);
+									switch ( message ) {
+									case "\u0001VERSION\u0001": // http://www.irchelp.org/irchelp/rfc/ctcpspec.html
+										if ( target != ActualNickname ) break;
+										Send( "NOTICE "+nick+" :\u0001VERSION UberIRC "+Assembly.GetExecutingAssembly().ImageRuntimeVersion+" Unknown Unavailable\u0001" );
 										break;
 									default:
-										nick = nick_;
+										foreach ( var l in Listeners ) l.OnPrivMsg( this, actor, target, message );
 										break;
 									}
+									break;
+								} case "NOTICE": {
+									var target = ReadParam(ref param);
+									var message = TrimColon(param);
+									foreach ( var l in Listeners ) l.OnNotice( this, actor, target, message );
+									break;
+								} case "MODE": {
+									var channel = ReadParam(ref param);
+									var modes = new Irc.ModeChangeSet(param);
 									
-									channel.Users.Add( nick );
-									if (!Users.ContainsKey(nick)) Users.Add(nick,new User());
-								}
-							}
-							break;
-						case "366": // RPL_ENDOFNAMES (End of names list)
-							break;
-						case "401": // RPL_NOSUCHNICK "<nickname> :No such nick/channel"
-							Send( "WHOWAS "+ReadParam(ref parameters) );
-							break;
-						case "406": { // RPL_WASNOSUCHNICK "<nickname> :There was no such nickname"
-							var nick = ReadParam(ref parameters);
-							if ( Users.ContainsKey(nick) ) Users.Remove(nick);
-							break;
-						} case "433": // Nick already in use
-							ActualNickname = ActualNickname + "_";
-							Send( "NICK "+ActualNickname); // try a different one
-							break;
-						}
-					} else if ( (match = new Regex(@"^\:?(?'nick'[^ !]+)!(?'user'[^ @]+)@(?'host'[^ ]+) (?'action'[^ ]+)(?: (?'params'.+))?$").Match(s)).Success ) {
-						var nick   = match.Groups["nick"].Value;
-						var user   = match.Groups["user"].Value;
-						var host   = match.Groups["host"].Value;
-						var actor  = new Irc.Actor() { Nickname = nick, Username = user, Hostname = host };
-						var action = match.Groups["action"].Value;
-						var param  = match.Groups["params"].Value;
-
-						switch ( action ) {
-							case "NICK": {
-								var newnick = ReadParam(ref param);
-								if ( nick == ActualNickname ) ActualNickname = newnick; // we got renamed!
-								
-								if ( Users.ContainsKey(nick) ) {
-									var info = Users[nick];
-									if ( !Users.ContainsKey(newnick) ) Users.Add(newnick,info);
-									Users.Remove(nick);
-								}
-
-								foreach ( var channel in Channels )
-								if ( channel.Value.Users.Contains(nick) )
-								{
-									channel.Value.Users.Remove(nick);
-									channel.Value.Users.Add(newnick);
-									foreach ( var l in Listeners ) l.OnNick( this, actor, channel.Key, newnick );
-								}
-								break;
-							} case "JOIN": {
-								var channel = ReadParam(ref param);
-								if ( nick == ActualNickname ) AddChannel(channel); // we joined a channel!
-								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Add(nick);
-								foreach ( var l in Listeners ) l.OnJoin( this, actor, channel );
-								break;
-							} case "PART": {
-								var channel = ReadParam(ref param);
-								if ( nick == ActualNickname ) RemoveChannel(channel); // we left a channel!
-								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Remove(nick);
-								foreach ( var l in Listeners ) l.OnPart( this, actor, channel );
-								break;
-							} case "QUIT": {
-								var message = TrimColon(param);
-
-								foreach ( var l in Listeners )
-								foreach ( var channel in Channels )
-								if ( channel.Value.Users.Contains(nick) )
-								{
-									l.OnQuit( this, actor, channel.Key, message );
-								}
-								break;
-							} case "KICK": {
-								var channel = ReadParam(ref param);
-								var target  = ReadParam(ref param);
-								var message = TrimColon(param);
-								if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Remove(target);
-								if ( target == ActualNickname ) { // we were kicked from a channel!
-									RemoveChannel( channel );
-									if ( AutoRejoin ) Join( channel );
-								}
-								foreach ( var l in Listeners ) l.OnKick( this, actor, channel, target, message );
-								break;
-							} case "PRIVMSG": {
-								var target = ReadParam(ref param);
-								var message = TrimColon(param);
-								switch ( message ) {
-								case "\u0001VERSION\u0001": // http://www.irchelp.org/irchelp/rfc/ctcpspec.html
-									if ( target != ActualNickname ) break;
-									Send( "NOTICE "+nick+" :\u0001VERSION UberIRC "+Assembly.GetExecutingAssembly().ImageRuntimeVersion+" Unknown Unavailable\u0001" );
+									foreach ( var l in Listeners ) {
+										foreach ( var mode in modes.UserModes    ) l.OnModeChange( this, actor, channel, mode.Key, mode.Value );
+										foreach ( var mode in modes.ChannelModes ) l.OnChannelModeChange( this, actor, channel, mode.Key, mode.Value );
+									}
 									break;
-								default:
-									foreach ( var l in Listeners ) l.OnPrivMsg( this, actor, target, message );
+								} case "TOPIC": {
+									var channel = ReadParam(ref param);
+									var newtopic = TrimColon(param);
+									foreach ( var l in Listeners ) l.OnTopic( this, actor, channel, newtopic );
 									break;
 								}
-								break;
-							} case "NOTICE": {
-								var target = ReadParam(ref param);
-								var message = TrimColon(param);
-								foreach ( var l in Listeners ) l.OnNotice( this, actor, target, message );
-								break;
-							} case "MODE": try {
-								var channel = ReadParam(ref param);
-								var modes = new Irc.ModeChangeSet(param);
-								
-								foreach ( var l in Listeners ) {
-									foreach ( var mode in modes.UserModes    ) l.OnModeChange( this, actor, channel, mode.Key, mode.Value );
-									foreach ( var mode in modes.ChannelModes ) l.OnChannelModeChange( this, actor, channel, mode.Key, mode.Value );
-								}
-								break;
-							} catch ( IndexOutOfRangeException ) {
-								// squelch IOOREs from running out of parameters or otherwise having malformed MODEs
-								break;
-							} case "TOPIC": {
-								var channel = ReadParam(ref param);
-								var newtopic = TrimColon(param);
-								foreach ( var l in Listeners ) l.OnTopic( this, actor, channel, newtopic );
-								break;
 							}
 						}
+					} catch ( Exception e ) {
+						foreach ( var l in Listeners ) l.OnRecvParseError( this, s, e );
 					}
 
 					begin = end+1;
@@ -246,6 +247,7 @@ namespace UberIRC.NET {
 			}
 			catch ( SocketException e ) { Handle(e); }
 			catch ( ObjectDisposedException e ) { Handle(e); }
+			catch ( Exception e ) { foreach ( var l in Listeners ) l.OnConnectionError(this,e); }
 		}
 		public static string ReadParam( ref string input ) {
 			string result;

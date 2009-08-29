@@ -19,6 +19,7 @@ namespace UberIRC.NET {
 		void OnModeChange       ( IrcConnection connection, Actor op , string channel, string mode, string target );
 		void OnChannelModeChange( IrcConnection connection, Actor op , string channel, string mode, string param );
 
-		void OnError( Exception error );
+		void OnRecvParseError   ( IrcConnection connection, string rawrecv, Exception e );
+		void OnConnectionError  ( IrcConnection connection, Exception e );
 	}
 }
