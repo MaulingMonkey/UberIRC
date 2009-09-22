@@ -31,7 +31,7 @@ namespace UberIRC.Providers {
 		static Dictionary< string, HashSet<string> > LanguageKeywords = new Dictionary<string,HashSet<string>>()
 			{ { "C++", new HashSet<string>() { "#include", "#define", "using namespace", "namespace std", "namespace boost", "::", "->", "public:", "private:", "protected:" } }
 			, { "C#", new HashSet<string>() { "unsafe", "System.", "this.", "throw new", "yield return" } }
-			, { "XML", new HashSet<string>() { "<?xml", "/>", "&lt;", "&amp;", "&gt;", "<!--", "-->" } }
+			, { "XML", new HashSet<string>() { "<?xml" } } //, "/>", "&lt;", "&amp;", "&gt;", "<!--", "-->" } }
 			};
 
 		class Paster {

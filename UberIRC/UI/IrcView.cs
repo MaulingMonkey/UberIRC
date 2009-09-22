@@ -206,6 +206,7 @@ namespace UberIRC {
 				}
 
 				CurrentView.Input.Text = root + common.Substring(0,longest);
+				AddHistory( CurrentView, "Tab Complete", Timestamp, String.Join(", ",possible), system );
 			}
 		}
 

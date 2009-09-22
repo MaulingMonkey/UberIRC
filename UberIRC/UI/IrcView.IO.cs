@@ -4,13 +4,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using Industry;
 using Industry.FX;
 using UberIRC.NET;
-using System.Web;
-using System.Diagnostics;
 
 namespace UberIRC {
 	public partial class IrcView : NET.IEventListener {
@@ -40,6 +40,46 @@ namespace UberIRC {
 			+@")(?=\s|$)"
 			);
 
+		readonly static string[] SafeProtocols = new[] { "http", "ftp", "https" };
+		readonly static string[] UnsafeProtocols = new[] { "file" };
+
+		bool IsUrlSafeToOpenWithFPH( string url ) {
+			foreach ( var proto in SafeProtocols ) if ( url.StartsWith( proto+"://" ) ) return true;
+			foreach ( var proto in UnsafeProtocols ) if ( url.StartsWith( proto+"://" ) ) {
+				MessageBox.Show
+					( this
+					, "UberIRC refuses to open this link (unsafe protocol)\n\n"+url
+					, "Protocol "+proto+" forbidden"
+					, MessageBoxButtons.OK
+					, MessageBoxIcon.Error
+					, MessageBoxDefaultButton.Button1
+					);
+				return false;
+			}
+
+			var result = MessageBox.Show
+				( this
+				, "Are you sure you want to open this link?\nUberIRC doesn't know if it's safe...\n\n"+url
+				, "Le Safety Dialogue~"
+				, MessageBoxButtons.YesNo
+				, MessageBoxIcon.Warning
+				, MessageBoxDefaultButton.Button2
+				);
+			switch ( result ) {
+			case DialogResult.OK:
+			case DialogResult.Yes:
+				return true;
+			case DialogResult.Abort:
+			case DialogResult.Cancel:
+			case DialogResult.No:
+			case DialogResult.None:
+				return false;
+			default:
+				Debug.Fail( "Invalid MessageBox.Show return value", "Returned "+Enum.GetName(typeof(DialogResult),result)+", expected OK, Yes, Abort, Cancel, No, or None." );
+				return false;
+			}
+		}
+
 		string GuessAndPrependProtocol( string url ) {
 			Match m = reUrlProtocol.Match(url);
 			
@@ -55,10 +95,14 @@ namespace UberIRC {
 			foreach ( Match match in reUrlPatterns.Matches(message) ) {
 				string url = match.Value;
 				if ( lasturlend != match.Index ) yield return new TextRun() { Font = style.Message.Font, Text = message.Substring(lasturlend,match.Index-lasturlend) };
+				string realurl = GuessAndPrependProtocol(url);
+
 				var command = new Action(() => {
+					if ( !IsUrlSafeToOpenWithFPH(realurl) ) return;
+
 					Process process = new Process();
 					process.StartInfo.FileName = "rundll32.exe";
-					process.StartInfo.Arguments = "url.dll,FileProtocolHandler " + GuessAndPrependProtocol(url);
+					process.StartInfo.Arguments = "url.dll,FileProtocolHandler " + realurl;
 					process.StartInfo.UseShellExecute = true;
 					process.Start();
 				});

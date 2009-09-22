@@ -6,6 +6,7 @@ UNDO/REDO
 Uparrow
 I want to click/open URLs :(
 Refactor everything
+Inline media?  Images, Youtube
 
 Ideas:
 make saying "s/un//" in channels actually work
