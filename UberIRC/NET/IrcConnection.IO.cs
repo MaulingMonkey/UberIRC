@@ -189,6 +189,7 @@ namespace UberIRC.NET {
 									foreach ( var channel in Channels )
 									if ( channel.Value.Users.Contains(nick) )
 									{
+										channel.Value.Users.Remove(nick);
 										l.OnQuit( this, actor, channel.Key, message );
 									}
 									break;
