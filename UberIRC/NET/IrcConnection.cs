@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Industry;
+using System.Timers;
 
 namespace UberIRC.NET {
 	public struct IrcConnectionID {
@@ -83,6 +84,7 @@ namespace UberIRC.NET {
 		IrcConnectParams Parameters;
 		String           actualNickname;
 		String           targetNickname;
+		String           serverIdent;
 		public String ActualNickname { get { return actualNickname; } private set { actualNickname = value; } }
 		public String TargetNickname { get { return targetNickname; } private set { targetNickname = value; } }
 		Encoding         Encoding;
@@ -91,6 +93,7 @@ namespace UberIRC.NET {
 		readonly HashSet<String>            TargetChannels = new HashSet<String>();
 		readonly Dictionary<String,Channel> Channels = new Dictionary<String,Channel>();
 		readonly Dictionary<String,User>    Users    = new Dictionary<String,User>();
+		[Owns] Timer     HeartbeatTimer = new Timer() { AutoReset = true, Interval = 6000.0f, Enabled = true };
 		
 		Channel AddChannel( string id ) {
 			if ( Channels.ContainsKey(id) ) {
@@ -113,6 +116,17 @@ namespace UberIRC.NET {
 			Encoding       = p.Encoding;
 			Listeners      = listeners;
 			BeginReconnect();
+			HeartbeatTimer.Elapsed += new ElapsedEventHandler(HeartbeatTimer_Elapsed);
+		}
+
+		void HeartbeatTimer_Elapsed(object sender, ElapsedEventArgs e) {
+			lock (Lock) {
+				if ( Client.Connected ) {
+					Send("PING "+serverIdent);
+				} else {
+					BeginReconnect();
+				}
+			}
 		}
 
 		public IrcConnectionID ConnectionID { get { return Parameters.To; } }

@@ -79,6 +79,8 @@ namespace UberIRC.NET {
 							var sender     = match.Groups[1].Value;
 							var code       = match.Groups[2].Value;
 							var parameters = match.Groups[3].Value;
+							if (serverIdent == null) serverIdent = sender;
+							
 							switch (code) {
 							case "001": // Welcome
 								Registered = true;
