@@ -31,14 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Industry, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Industry\Industry\bin\Debug\Industry.dll</HintPath>
-    </Reference>
-    <Reference Include="Industry.PDN, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Industry\Industry.PDN\bin\Release\Industry.PDN.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -93,6 +85,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\UberConsole.pdn" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Dependencies\Industry\Industry.PDN\Industry.PDN.csproj">
+      <Project>{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}</Project>
+      <Name>Industry.PDN</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dependencies\Industry\Industry\Industry.csproj">
+      <Project>{747D732F-B7F8-40EB-A782-907ADFBC222D}</Project>
+      <Name>Industry</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
