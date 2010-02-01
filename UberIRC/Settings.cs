@@ -1,4 +1,4 @@
-﻿// Copyright Michael B. E. Rickert 2009
+﻿// Copyright Michael B. E. Rickert 2009-2010
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file ..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
 
@@ -36,6 +36,7 @@ namespace UberIRC {
 		Provider[] Providers = new Provider[]
 			{ new SearchProvider()
 			, new PasteProvider()
+			, new UrlShortcutProvider()
 			};
 
 		private void Inject( Settings settings ) { foreach ( var provider in Providers ) provider.Settings = settings; }

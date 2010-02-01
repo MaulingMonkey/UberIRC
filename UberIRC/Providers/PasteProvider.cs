@@ -1,18 +1,18 @@
-﻿// Copyright Michael B. E. Rickert 2009
+﻿// Copyright Michael B. E. Rickert 2009-2010
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file ..\..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Xml;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Net;
 using System.Text;
-using System.IO;
-using System.Drawing.Imaging;
-using System.Web;
 using System.Text.RegularExpressions;
+using System.Web;
+using System.Windows.Forms;
+using System.Xml;
 
 namespace UberIRC.Providers {
 	class PasteProvider : Provider {
@@ -135,12 +135,12 @@ namespace UberIRC.Providers {
 			} else if ( code != "" ) {
 				string language = "C#";
 				foreach ( var lk in LanguageKeywords ) {
-				    foreach ( var keyword in lk.Value )
-				    if ( code.Contains(keyword) )
-				    {
-				        language = lk.Key;
-				        break;
-				    }
+					foreach ( var keyword in lk.Value )
+					if ( code.Contains(keyword) )
+					{
+						language = lk.Key;
+						break;
+					}
 				}
 
 				if ( !paster.TextPasteLanguages.ContainsKey(language) ) language = "default";
