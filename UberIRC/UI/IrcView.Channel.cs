@@ -10,9 +10,10 @@ using Font = Industry.FX.Font;
 namespace UberIRC {
 	public partial class IrcView {
 		public class Channel {
-			public IrcChannelID   ID;
-			public ChatHistory History;
-			public TextBox     Input;
+			public IrcChannelID ID;
+			public ChatHistory  History;
+			public TextBox      Input;
+			public bool         IsPerson;
 
 			public readonly int Margin = 2;
 			public Channel( IrcChannelID id, Font.Library Library, Size ClientSize ) {
@@ -29,9 +30,9 @@ namespace UberIRC {
 			}
 		}
 
-		Channel CreateChannel(IrcChannelID id) {
-			var channel = new Channel(id,library,ClientSize);
-			AddHistory( channel, "CHANNEL", "", id.Channel, normal );
+		Channel CreateChannel(IrcChannelID id,bool person) {
+			var channel = new Channel(id,library,ClientSize) { IsPerson = person };
+			AddHistory( channel, person?"PERSON":"CHANNEL", "", id.Channel, normal );
 			Views.Add( id, channel );
 			if ( CurrentView == null ) CurrentView = channel;
 			return channel;

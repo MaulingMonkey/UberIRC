@@ -189,6 +189,12 @@ namespace UberIRC {
 			CurrentView.ID.Connection.Send( "PRIVMSG "+CurrentView.ID.Channel+" :"+line );
 		}
 
+		void SendPrivateMessage( string line ) {
+			var split = line.Split(new[]{' '},2);
+			OnPrivMsg( CurrentView.ID.Connection, new Irc.Actor() { Nickname = CurrentView.ID.Connection.ActualNickname, Hostname = "???", Username = "???" }, split[0], split[1] );
+			CurrentView.ID.Connection.Send( "PRIVMSG "+split[0]+" :"+split[1] );
+		}
+
 		void SendAction( string line ) {
 			line = "\u0001ACTION "+line+"\u0001";
 			SendMessage(line);
@@ -203,7 +209,7 @@ namespace UberIRC {
 
 		public void OnChannelModeChange(IrcConnection connection, Irc.Actor op, string channel, string mode, string param) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,op,channel);
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, op.Nickname + " has set mode " + mode + " " + param, system );
@@ -213,7 +219,7 @@ namespace UberIRC {
 
 		public void OnJoin(IrcConnection connection, Irc.Actor who, string channel) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,who,channel);
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, who + " has joined the channel", system );
@@ -223,7 +229,7 @@ namespace UberIRC {
 
 		public void OnKick(IrcConnection connection, Irc.Actor op, string channel, string target, string message) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,op,channel);
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, op.Nickname + " has kicked " + target + " from the channel" + (message=="" ? "" : (" ("+message+")")), system );
@@ -233,7 +239,7 @@ namespace UberIRC {
 
 		public void OnModeChange(IrcConnection connection, Irc.Actor op, string channel, string mode, string target) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,op,channel);
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, op.Nickname + " has set mode " + mode + " on " + target, system );
@@ -243,7 +249,7 @@ namespace UberIRC {
 
 		public void OnNick(IrcConnection connection, Irc.Actor who, string channel, string new_) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,who,channel);
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, who.Nickname + " is now known as " + new_, system );
@@ -253,7 +259,7 @@ namespace UberIRC {
 
 		public void OnPart(IrcConnection connection, Irc.Actor who, string channel) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,who,channel);
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, who + " has left the channel", system );
@@ -263,7 +269,7 @@ namespace UberIRC {
 
 		public void OnPrivMsg(IrcConnection connection, Irc.Actor who, string target, string message) {
 			Begin(()=>{
-				var view = ViewOf(connection,target);
+				var view = ViewOf(connection,who,target);
 				if ( view==null ) return;
 
 				var style
@@ -286,7 +292,7 @@ namespace UberIRC {
 
 		public void OnNotice(IrcConnection connection, Irc.Actor who, string target, string message) {
 			Begin(()=>{
-				var view = ViewOf(connection,target);
+				var view = ViewOf(connection,who,target);
 				if ( view==null ) return;
 
 				var style
@@ -307,7 +313,7 @@ namespace UberIRC {
 
 		public void OnQuit(IrcConnection connection, Irc.Actor who, string channel, string message) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,who,channel);
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, who + " has quit " + connection.ConnectionID.Hostname + (message=="" ? "" : (" ("+message+")")), system );
@@ -317,7 +323,7 @@ namespace UberIRC {
 
 		public void OnTopic( IrcConnection connection, Irc.Actor who, string channel, string topic ) {
 			Begin(()=>{
-				var view = ViewOf(connection,channel);
+				var view = ViewOf(connection,who,channel);
 				if ( view==null ) return;
 
 				if ( who == null ) {
@@ -331,7 +337,7 @@ namespace UberIRC {
 
 		public void OnRecvParseError( IrcConnection connection, string rawline, Exception e ) {
 			Begin(()=>{
-				var view = ViewOf(connection,"Error Log");
+				var view = ViewOf(connection,null,"Error Log");
 				AddHistory( view, "Exception"    , Timestamp, e.GetType().Name + " thrown during parsing of recieved data", alerted );
 				AddHistory( view, "Recieved Data", Timestamp, rawline, normal );
 				AddHistory( view, "Message"      , Timestamp, e.Message, normal );
@@ -341,20 +347,21 @@ namespace UberIRC {
 
 		public void OnConnectionError( IrcConnection connection, Exception e ) {
 			Begin(()=>{
-				var view = ViewOf(connection,"Error Log");
+				var view = ViewOf(connection,null,"Error Log");
 				AddHistory( view, "Exception"    , Timestamp, e.GetType().Name + " thrown handling of connection", alerted );
 				AddHistory( view, "Message"      , Timestamp, e.Message   , normal );
 				AddHistory( view, "Backtrace"    , Timestamp, e.StackTrace, normal );
 			});
 		}
 
-		Channel ViewOf( IrcConnection connection, string channel ) {
-			var id = new IrcChannelID() { Connection = connection, Channel = channel };
-			if (!Views.ContainsKey(id)) CreateChannel(id);
+		Channel ViewOf( IrcConnection connection, Irc.Actor who, string channel ) {
+			bool pm = channel == connection.ActualNickname;
+			var id = new IrcChannelID() { Connection = connection, Channel = pm?who.Nickname:channel };
+			if (!Views.ContainsKey(id)) CreateChannel(id,pm);
 			return Views[id];
 		}
 
-		IEnumerable<Channel> AllViews { get { lock ( Views ) foreach ( var view in Views.Values ) yield return view; } }
+		//IEnumerable<Channel> AllViews { get { lock ( Views ) foreach ( var view in Views.Values ) yield return view; } }
 
 		string Timestamp { get { return DateTime.Now.ToString("[HH:mm]"); } }
 	}

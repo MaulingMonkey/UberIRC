@@ -72,7 +72,7 @@ namespace UberIRC {
 					connection.Join( channel.Name );
 					if ( channel.Shortcut == Keys.None ) continue;
 					string cname = channel.Name;
-					Shortcuts.Add( channel.Shortcut, () => CurrentView = ViewOf(connection,cname) );
+					Shortcuts.Add( channel.Shortcut, () => CurrentView = ViewOf(connection,null,cname) );
 				}
 			}
 		}
@@ -117,8 +117,11 @@ namespace UberIRC {
 			Commands = new Dictionary<string,Command>()
 				{ { "join", Join }
 				, { "part", Part }
+				, { "leave", Part }
 				, { "say" , SendMessage }
 				, { "me"  , SendAction }
+				, { "pm"  , SendPrivateMessage }
+				, { "msg" , SendPrivateMessage }
 				, { "nick", ChangeNick }
 				, { "topic", Topic }
 				, { "o/"  , rest => SendMessage("/o/ "+rest) }
@@ -152,7 +155,7 @@ namespace UberIRC {
 
 		void NextView() {
 			Channel prev = null;
-			foreach ( var chan in Views.Values ) {
+			foreach ( var chan in Views.Values.OrderBy(chan=>chan.IsPerson?1:0) ) {
 				if ( prev == CurrentView ) {
 					CurrentView = chan;
 					return;
@@ -165,7 +168,7 @@ namespace UberIRC {
 		void PrevView() {
 			Channel first = null;
 			Channel prev = null;
-			foreach ( var chan in Views.Values ) {
+			foreach ( var chan in Views.Values.OrderBy(chan=>chan.IsPerson?1:0) ) {
 				if ( first == null ) first = chan;
 				if ( chan == CurrentView ) {
 					if ( prev != null ) CurrentView = prev;
