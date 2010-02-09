@@ -139,18 +139,18 @@ namespace UberIRC {
 
 		void Cut() {
 			if ( CurrentView == null ) return;
-			Clipboard.SetText( CurrentView.Input.Text );
+			Clipboard.SetText( CurrentView.Input.Text ?? "" );
 			CurrentView.Input.Text = "";
 		}
 
 		void Copy() {
 			if ( CurrentView == null ) return;
-			Clipboard.SetText( CurrentView.Input.Text );
+			Clipboard.SetText( CurrentView.Input.Text ?? "" );
 		}
 
 		void Paste() {
 			if ( CurrentView == null ) return;
-			CurrentView.Input.Text += Clipboard.GetText();
+			CurrentView.Input.Text += Clipboard.GetText() ?? "";
 		}
 
 		void NextView() {
