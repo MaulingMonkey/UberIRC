@@ -28,6 +28,22 @@ namespace UberIRC.Providers {
 		//    />
 		//</paste>
 
+		class WebClient : System.Net.WebClient {
+			public Uri ResponseUri { get; private set; }
+
+			protected override WebResponse GetWebResponse( WebRequest request ) {
+				var response = base.GetWebResponse(request);
+				ResponseUri = response.ResponseUri;
+				return response;
+			}
+
+			protected override WebResponse GetWebResponse( WebRequest request, IAsyncResult result ) {
+				var response = base.GetWebResponse(request, result);
+				ResponseUri = response.ResponseUri;
+				return response;
+			}
+		}
+
 		static Dictionary< string, HashSet<string> > LanguageKeywords = new Dictionary<string,HashSet<string>>()
 			{ { "C++", new HashSet<string>() { "#include", "#define", "using namespace", "namespace std", "namespace boost", "::", "->", "public:", "private:", "protected:" } }
 			, { "C#", new HashSet<string>() { "unsafe", "System.", "this.", "throw new", "yield return" } }
@@ -119,8 +135,7 @@ namespace UberIRC.Providers {
 				bool success = m.Success;
 				if ( success ) View.BeginTryPasteLink(m.Groups[1].Value);
 			} else {
-				var locations = upload.Client.ResponseHeaders.GetValues("Location");
-				if ( locations != null && locations.Length==1 && locations[0] != "" ) View.BeginTryPasteLink(locations[0]);
+				View.BeginTryPasteLink( upload.Client.ResponseUri.ToString() );
 			}
 			upload.Client.Dispose();
 		}
