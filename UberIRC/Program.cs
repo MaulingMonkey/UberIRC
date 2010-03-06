@@ -3,10 +3,8 @@
 // (See accompanying file ..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
 using UberIRC.Properties;
 
 namespace UberIRC {
@@ -28,14 +26,8 @@ namespace UberIRC {
 			var DebugSettingsPath = Path.Combine( Application.UserAppDataPath, "debug-settings.xml" );
 			if ( File.Exists(DebugSettingsPath) ) SettingsPath = DebugSettingsPath;
 #endif
-			Settings settings;
+			Settings settings = new Settings(SettingsPath);
 
-			using ( var reader = File.Open(SettingsPath,FileMode.Open,FileAccess.Read,FileShare.Read) ) {
-				var xml = new XmlDocument();
-				xml.Load(reader);
-				settings = new Settings(xml);
-			}
-				
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			using ( var view = new IrcView(settings) ) Application.Run(view);

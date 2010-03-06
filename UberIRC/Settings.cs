@@ -4,6 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
 using UberIRC.Providers;
@@ -33,11 +36,12 @@ namespace UberIRC {
 			public List<Channel> Channels = new List<Channel>();
 		}
 
-		Provider[] Providers = new Provider[]
-			{ new SearchProvider()
-			, new PasteProvider()
-			, new UrlShortcutProvider()
-			};
+		Provider[] Providers = Assembly.GetExecutingAssembly()
+			.GetTypes()
+			.Where(t=>t.IsSubclassOf(typeof(Provider)))
+			.Select(t=>t.GetConstructor(Type.EmptyTypes).Invoke(null) as Provider)
+			.ToArray()
+			;
 
 		private void Inject( Settings settings ) { foreach ( var provider in Providers ) provider.Settings = settings; }
 		public  void Inject( IrcView  view     ) { foreach ( var provider in Providers ) provider.View     = view; }
@@ -144,18 +148,27 @@ namespace UberIRC {
 			return s;
 		}
 
-		public readonly XmlDocument XML;
-		public Settings( XmlDocument settings ) {
-			XML = settings;
+		public string Path { get; private set; }
+		public XmlDocument XML { get; private set; }
+		public Settings( string path ) {
+			Path = path;
+			Reload();
 			Inject(this);
 
-			foreach ( XmlNode server in settings.SelectNodes("//server") ) servers.Add( ReadServer(server) );
+			foreach ( XmlNode server in XML.SelectNodes("//server") ) servers.Add( ReadServer(server) );
 
 			foreach ( var s in servers ) {
 				if ( s.Nickname == null ) s.Nickname = DefaultServerSettings.Nickname;
 				if ( s.Username == null ) s.Username = "uberirc";
 				if ( s.Realname == null ) s.Realname = "*";
 				if ( s.Userhost == null ) s.Userhost = "*";
+			}
+		}
+
+		public void Reload() {
+			using ( var reader = File.Open(Path,FileMode.Open,FileAccess.Read,FileShare.Read) ) {
+				XML = new XmlDocument();
+				XML.Load(reader);
 			}
 		}
 

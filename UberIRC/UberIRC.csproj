@@ -47,6 +47,7 @@
     <Compile Include="NET\IEventListener.cs" />
     <Compile Include="Providers\PasteProvider.cs" />
     <Compile Include="Providers\Provider.cs" />
+    <Compile Include="Providers\ReloadSettingsProvider.cs" />
     <Compile Include="Providers\SearchProvider.cs" />
     <Compile Include="Providers\UrlShortcutProvider.cs" />
     <Compile Include="Settings.cs" />

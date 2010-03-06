@@ -144,7 +144,12 @@ namespace UberIRC {
 				if ( Commands.ContainsKey(command) ) {
 					Commands[command]( parameters );
 				} else {
-					AddHistory( CurrentView, "ERROR", Timestamp, "Unrecognized command "+command, commanderror );
+					var cmd = Settings.Commands.FirstOrDefault( c => c.Key==command ).Value;
+					if ( cmd != null ) {
+						cmd(parameters);
+					} else {
+						AddHistory( CurrentView, "ERROR", Timestamp, "Unrecognized command "+command, commanderror );
+					}
 				}
 			}
 			else

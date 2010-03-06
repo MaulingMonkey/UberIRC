@@ -4,13 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Web;
 using System.Windows.Forms;
 using Industry;
 using UberIRC.NET;
@@ -133,8 +128,8 @@ namespace UberIRC {
 				, { "mode", ChangeModes }
 				};
 
-			foreach ( var command in Settings.Commands ) Commands.Add( command.Key, command.Value );
-			foreach ( var shortcut in Settings.Shortcuts ) Shortcuts.Add( shortcut.Key, shortcut.Value );
+			//foreach ( var command in Settings.Commands ) Commands.Add( command.Key, command.Value );
+			//foreach ( var shortcut in Settings.Shortcuts ) Shortcuts.Add( shortcut.Key, shortcut.Value );
 		}
 
 		void Cut() {
@@ -282,8 +277,14 @@ namespace UberIRC {
 			if ( Shortcuts.ContainsKey(e.KeyData) ) {
 				e.SuppressKeyPress = true;
 				Shortcuts[e.KeyData]();
-				Invalidate();
+			} else {
+				var sc = Settings.Shortcuts.FirstOrDefault( s => s.Key == e.KeyData ).Value;
+				if ( sc != null ) {
+					e.SuppressKeyPress = true;
+					sc();
+				}
 			}
+			Invalidate();
 		}
 
 		private void IrcView_KeyPress(object sender, KeyPressEventArgs e) {
