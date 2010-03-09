@@ -283,7 +283,7 @@ namespace UberIRC {
 					: normal
 					;
 
-				if ( style == alerted ) MessageBeep(MB_OK);
+				if ( style == alerted || target == connection.ActualNickname ) MessageBeep(MB_OK);
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
