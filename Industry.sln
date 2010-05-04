@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Industry", "Industry\Industry.csproj", "{747D732F-B7F8-40EB-A782-907ADFBC222D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{9E9B8177-BF15-40EF-8A68-D0A8CFC41498}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F853AFCD-EF2E-48A6-A269-642E1CF6443E}"
+	ProjectSection(SolutionItems) = preProject
+		Industry.vsmdi = Industry.vsmdi
+		LICENSE.txt = LICENSE.txt
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{EB246D06-252E-4578-9A35-D7BCE20CEC2D}"
+	ProjectSection(SolutionItems) = preProject
+		Dependencies\PaintDotNet.Base.dll = Dependencies\PaintDotNet.Base.dll
+		Dependencies\PaintDotNet.Core.dll = Dependencies\PaintDotNet.Core.dll
+		Dependencies\PaintDotNet.Data.dll = Dependencies\PaintDotNet.Data.dll
+		Dependencies\PaintDotNet.SystemLayer.dll = Dependencies\PaintDotNet.SystemLayer.dll
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Industry.PDN", "Industry.PDN\Industry.PDN.csproj", "{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{CF19EFBE-2731-49BB-B86C-530CED829B1A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloPDN", "HelloPDN\HelloPDN.csproj", "{9DDC231D-EA91-4C53-A775-12846DAAAC43}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Industry.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{747D732F-B7F8-40EB-A782-907ADFBC222D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{747D732F-B7F8-40EB-A782-907ADFBC222D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{747D732F-B7F8-40EB-A782-907ADFBC222D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{747D732F-B7F8-40EB-A782-907ADFBC222D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E9B8177-BF15-40EF-8A68-D0A8CFC41498}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E9B8177-BF15-40EF-8A68-D0A8CFC41498}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E9B8177-BF15-40EF-8A68-D0A8CFC41498}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E9B8177-BF15-40EF-8A68-D0A8CFC41498}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DDC231D-EA91-4C53-A775-12846DAAAC43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DDC231D-EA91-4C53-A775-12846DAAAC43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DDC231D-EA91-4C53-A775-12846DAAAC43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DDC231D-EA91-4C53-A775-12846DAAAC43}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9DDC231D-EA91-4C53-A775-12846DAAAC43} = {CF19EFBE-2731-49BB-B86C-530CED829B1A}
+	EndGlobalSection
+EndGlobal

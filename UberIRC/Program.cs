@@ -3,6 +3,7 @@
 // (See accompanying file ..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using UberIRC.Properties;
