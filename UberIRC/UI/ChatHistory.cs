@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using Industry;
 using Industry.FX;
 using Font = Industry.FX.Font;
@@ -144,14 +145,9 @@ namespace UberIRC {
 			var measure_nickname  = entry.Style.Nickname .Font.MeasureLines(nickname );
 			var measure_message   =                       Font.MeasureLines(message  );
 
-			int height   = 0;
-			int advancey = 0;
-			height = Math.Max(height,measure_timestamp.Bounds.Height);
-			height = Math.Max(height,measure_nickname .Bounds.Height);
-			height = Math.Max(height,measure_message  .Bounds.Height);
-			advancey = Math.Max(advancey,measure_timestamp.Advance.Y);
-			advancey = Math.Max(advancey,measure_nickname .Advance.Y);
-			advancey = Math.Max(advancey,measure_message  .Advance.Y);
+			var measurements = new[] { measure_timestamp, measure_nickname, measure_message };
+			int height   = measurements.Select(m=>m.Bounds.Height).Max();
+			int advancey = measurements.Select(m=>m.Advance.Y    ).Max();
 			
 			extentry.RenderCache = new Bitmap(Bounds.Width,height,PixelFormat.Format32bppArgb);
 			using ( var fx = Graphics.FromImage(extentry.RenderCache) ) {
