@@ -67,13 +67,6 @@ namespace UberIRC.Properties {
             }
         }
         
-        internal static byte[] UberConsole {
-            get {
-                object obj = ResourceManager.GetObject("UberConsole", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
         internal static byte[] UberConsoleUFF {
             get {
                 object obj = ResourceManager.GetObject("UberConsoleUFF", resourceCulture);

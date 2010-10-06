@@ -86,17 +86,12 @@
     <Content Include="Resources\DefaultSettings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\UberConsole.pdn" />
     <None Include="Resources\UberConsole.uff1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Industry.FX.Font.UFF\Industry.FX.Font.UFF.csproj">
       <Project>{E1C3C905-18BC-40D6-90D6-BE2A49C1D369}</Project>
       <Name>Industry.FX.Font.UFF</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Industry.PDN\Industry.PDN.csproj">
-      <Project>{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}</Project>
-      <Name>Industry.PDN</Name>
     </ProjectReference>
     <ProjectReference Include="..\Industry\Industry.csproj">
       <Project>{747D732F-B7F8-40EB-A782-907ADFBC222D}</Project>
