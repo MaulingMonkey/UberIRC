@@ -110,16 +110,17 @@ namespace UberIRC {
 				};
 
 			Commands = new Dictionary<string,Command>()
-				{ { "join", Join }
-				, { "part", Part }
-				, { "leave", Part }
-				, { "say" , SendMessage }
-				, { "me"  , SendAction }
-				, { "pm"  , SendPrivateMessage }
-				, { "msg" , SendPrivateMessage }
-				, { "nick", ChangeNick }
-				, { "topic", Topic }
-				, { "o/"  , rest => SendMessage("/o/ "+rest) }
+				{ { "join"   , Join }
+				, { "part"   , Part }
+				, { "leave"  , Part }
+				, { "say"    , SendMessage }
+				, { "me"     , SendAction }
+				, { "invite" , SendInvite }
+				, { "pm"     , SendPrivateMessage }
+				, { "msg"    , SendPrivateMessage }
+				, { "nick"   , ChangeNick }
+				, { "topic"  , Topic }
+				, { "o/"     , rest => SendMessage("/o/ "+rest) }
 				, { "kick"   , Kick }
 				, { "ban"    , Ban }
 				, { "kickban", KickBan }

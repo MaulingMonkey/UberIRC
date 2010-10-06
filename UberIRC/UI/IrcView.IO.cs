@@ -205,6 +205,22 @@ namespace UberIRC {
 			SendMessage(line);
 		}
 
+		void SendInvite( string line ) {
+			string nick;
+			string channel = CurrentView.ID.Channel;
+			if ( line.Contains(' ') ) {
+				var args = line.Split(' ');
+				nick = args[1];
+				channel = args[0];
+				if ( !channel.StartsWith("#") ) channel = "#"+channel;
+			} else {
+				nick = line;
+			}
+
+			OnInvite( CurrentView.ID.Connection, new Irc.Actor() { Nickname = nick, Hostname = "???", Username = "???" }, channel );
+			CurrentView.ID.Connection.Send( "INVITE "+nick+" "+channel );
+		}
+
 		public void BeginTrySendMessage( string line ) {
 			BeginInvoke( new Action( () => { if ( CurrentView!=null ) SendMessage(line); } ) );
 		}
@@ -258,6 +274,16 @@ namespace UberIRC {
 				if ( view==null ) return;
 
 				AddHistory( view, "", Timestamp, who.Nickname + " is now known as " + new_, system );
+				Invalidate();
+			});
+		}
+
+		public void OnNick(IrcConnection connection, Irc.Actor who, string channel ) {
+			Begin(()=>{
+				var view = ViewOf(connection,who,channel);
+				if ( view==null ) return;
+
+				AddHistory( view, "", Timestamp, "You have invited " + who.Nickname + " to " + channel, system );
 				Invalidate();
 			});
 		}
@@ -337,6 +363,16 @@ namespace UberIRC {
 					AddHistory( view, "", Timestamp, who.Nickname + " has changed the topic to " + topic, system );
 				}
 				Invalidate();
+			});
+		}
+
+		public void OnInvite(IrcConnection connection, Irc.Actor who, string channel ) {
+			Begin(()=>{
+				var view = ViewOf(connection,who,channel);
+				if ( view==null ) return;
+
+				AddHistory( view, "", Timestamp, who.Nickname + " has been invited to " + channel , system );
+				if ( view == CurrentView ) Invalidate();
 			});
 		}
 
