@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\UberConsole.pdn" />
+    <None Include="Resources\UberConsole.uff1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Industry.FX.Font.UFF\Industry.FX.Font.UFF.csproj">

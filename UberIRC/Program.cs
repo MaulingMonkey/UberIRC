@@ -17,10 +17,6 @@ namespace UberIRC {
 		/// </summary>
 		[STAThread]
 		static void Main() {
-			var library = new Font.Library();
-			library.LoadPDNMemory( Resources.UberConsole, null );
-			new[]{4,5,6}.Select(s=>new Font(library,"Uber Console",s)).SaveUFF1(@"I:\home\art\ui\uberconsole.uff1");
-
 			var SettingsPath = Path.Combine( Application.UserAppDataPath, "settings.xml" );
 			if (!File.Exists(SettingsPath))
 			using ( var writer = File.Create(SettingsPath,Resources.DefaultSettings.Length,FileOptions.SequentialScan) )

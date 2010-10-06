@@ -59,36 +59,51 @@ namespace Industry.FX {
 		public static void SaveUFF ( Font font, string filename ) { new[]{font}.SaveUFF (filename); }
 		public static void SaveUFF1( Font font, string filename ) { new[]{font}.SaveUFF1(filename); }
 
-		static bool LoadUFF1( this Font.Library library, string filename, Font.BitmapColorTransform ct ) {
-			var s = new BinaryFormatter();
-			UFF1 uff1;
-			using ( var stream = File.OpenRead(filename) ) uff1 = s.Deserialize(stream) as UFF1;
-			if ( uff1==null ) return false;
+		static bool LoadUFF1( this Font.Library library, Stream stream, Font.BitmapColorTransform ct ) {
+			var final_position = stream.Position;
 
-			foreach ( var page in uff1.Pages ) {
-				using ( var page_bitmap = new MemoryStream(page.Bitmap) )
-				{
-					var bmpage = new Font.BitmapPage()
-						{ Bitmap = (Bitmap)Bitmap.FromStream(page_bitmap)
-						, CharsTall = page.CharsTall
-						, CharsWide = page.CharsWide
-						, End = page.Last
-						, Start = page.First
-						, Measurement = new Font.Measurement()
-							{ Advance = new Point( page.AdvanceX  , page.AdvanceY    )
-							, Bounds  = new Size ( page.GlyphWidth, page.GlyphHeight )
-							}
-						};
-					if ( ct!=null ) bmpage.ColorTransform = ct;
-					library.Add( bmpage, page.FontName, page.FontSize );
+			try {
+				var s = new BinaryFormatter();
+				UFF1 uff1 = s.Deserialize(stream) as UFF1;
+				if ( uff1==null ) return false;
+
+				foreach ( var page in uff1.Pages ) {
+					using ( var page_bitmap = new MemoryStream(page.Bitmap) )
+					{
+						var bmpage = new Font.BitmapPage()
+							{ Bitmap = (Bitmap)Bitmap.FromStream(page_bitmap)
+							, CharsTall = page.CharsTall
+							, CharsWide = page.CharsWide
+							, End = page.Last
+							, Start = page.First
+							, Measurement = new Font.Measurement()
+								{ Advance = new Point( page.AdvanceX  , page.AdvanceY    )
+								, Bounds  = new Size ( page.GlyphWidth, page.GlyphHeight )
+								}
+							};
+						if ( ct!=null ) bmpage.ColorTransform = ct;
+						library.Add( bmpage, page.FontName, page.FontSize );
+					}
 				}
+				final_position = stream.Position;
+				return true;
+			} finally {
+				stream.Position = final_position;
 			}
-			return true;
 		}
 
-		public static void LoadUFF( this Font.Library library, string filename, Font.BitmapColorTransform ct ) {
-			if ( library.LoadUFF1(filename,ct) ) return;
-			throw new ArgumentException( string.Format( "{0} is not a UFF1 file", filename ) );
+		public static void LoadUFFFile( this Font.Library library, string filename, Font.BitmapColorTransform ct ) {
+			using ( var stream = File.OpenRead(filename) ) library.LoadUFFStream(stream,ct);
+		}
+
+		public static void LoadUFFMemory( this Font.Library library, byte[] data, Font.BitmapColorTransform ct ) {
+			using ( var stream = new MemoryStream(data) ) library.LoadUFFStream(stream,ct);
+		}
+
+		public static void LoadUFFStream( this Font.Library library, Stream stream, Font.BitmapColorTransform ct ) {
+			if ( library.LoadUFF1(stream,ct) ) return;
+
+			throw new ArgumentException( "Stream does not contain a UFF1 file" );
 		}
 	}
 }

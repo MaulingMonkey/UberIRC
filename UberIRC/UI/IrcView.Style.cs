@@ -39,8 +39,7 @@ namespace UberIRC {
 
 		public void InitializeStyle() {
 			library = new Font.Library();
-			//library.LoadPDNMemory( Resources.UberConsole, Industry.FX.Font.GreyscaleAsForecolorAlphaScaledBitmapColorTransform );
-			library.LoadUFF(@"I:\home\art\ui\uberconsole.uff1", Industry.FX.Font.GreyscaleAsForecolorAlphaScaledBitmapColorTransform );
+			library.LoadUFFMemory( Resources.UberConsoleUFF, Industry.FX.Font.GreyscaleAsForecolorAlphaScaledBitmapColorTransform );
 			
 			ltgray4 = new Font( library, "Uber Console", 4 ) { Color = Color.FromArgb(unchecked((int)0x44000000u)) };
 			ltblue4 = new Font( library, "Uber Console", 4 ) { Color = Color.FromArgb(unchecked((int)0x440000BBu)) };
