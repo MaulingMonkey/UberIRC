@@ -12,6 +12,12 @@ namespace Industry.FX {
 		string name;
 		int    size;
 
+		/// <summary>
+		/// Do not use!
+		/// Violates any pretense of abstractions we might have had.
+		/// </summary>
+		public List<Font.BitmapPage> _XXX_GetPages() { return Pages; }
+
 		public Color  Color = Color.Black;
 		public string Name { get { return name; } set { if (name == value) return; name = value; Reload(); } }
 		public int    Size { get { return size; } set { if (size == value) return; size = value; Reload(); } }

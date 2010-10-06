@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Industry", "Industry\Indust
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Industry.PDN", "Industry.PDN\Industry.PDN.csproj", "{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Industry.FX.Font.UFF", "Industry.FX.Font.UFF\Industry.FX.Font.UFF.csproj", "{E1C3C905-18BC-40D6-90D6-BE2A49C1D369}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CECB4BCA-D4F6-4C23-934D-F3E3DC6BDD71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1C3C905-18BC-40D6-90D6-BE2A49C1D369}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1C3C905-18BC-40D6-90D6-BE2A49C1D369}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1C3C905-18BC-40D6-90D6-BE2A49C1D369}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1C3C905-18BC-40D6-90D6-BE2A49C1D369}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
