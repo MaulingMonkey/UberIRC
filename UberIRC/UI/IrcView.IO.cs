@@ -309,11 +309,14 @@ namespace UberIRC {
 					: normal
 					;
 
-				if ( style == alerted || target == connection.ActualNickname ) {
+				if ( style == alerted || target == connection.ActualNickname )
+				if ( !view.IsHiddenPermanently )
+				{
 					MessageBeep(MB_OK);
 					view.IsHighlighted = true;
 				}
 				view.IsUnread = true;
+				view.IsHidden = view.IsHiddenPermanently;
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
@@ -337,11 +340,14 @@ namespace UberIRC {
 					: normal
 					;
 
-				if ( style == alerted || target == connection.ActualNickname ) {
+				if ( style == alerted || target == connection.ActualNickname )
+				if ( !view.IsHiddenPermanently )
+				{
 					MessageBeep(MB_OK);
 					view.IsHighlighted = true;
 				}
 				view.IsUnread = true;
+				view.IsHidden = view.IsHiddenPermanently;
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {

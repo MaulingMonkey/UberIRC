@@ -15,7 +15,7 @@ namespace UberIRC {
 			public ChannelSelector ChannelSelector;
 			public TextBox         Input;
 			public bool            IsPerson;
-			public bool            IsUnread, IsHighlighted, IsHidden;
+			public bool            IsUnread, IsHighlighted, IsHidden, IsHiddenPermanently;
 
 			public readonly int Margin = 2;
 			public Channel( IrcChannelID id, Font.Library Library, Size ClientSize ) {

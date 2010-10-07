@@ -97,19 +97,20 @@ namespace UberIRC {
 		void InitializeShortcutsAndCommands() {
 			Shortcuts = new Dictionary<Keys,Action>()
 				{ { Keys.None, null }
-				, { Keys.PageUp            , () => CurrentView.History.PageUp() }
-				, { Keys.PageDown          , () => CurrentView.History.PageDown() }
-				, { Keys.X|Keys.Control    , Cut }
-				, { Keys.C|Keys.Control    , Copy }
-				, { Keys.V|Keys.Control    , Paste }
-				, { Keys.W|Keys.Control    , HideView }
-				, { Keys.BrowserForward    , NextView }
-				, { Keys.BrowserBack       , PrevView }
-				, { Keys.Left |Keys.Control, PrevView }
-				, { Keys.Right|Keys.Control, NextView }
-				, { Keys.Enter             , OnEnter }
-				, { Keys.Back              , () => CurrentView.Input.Backspace() }
-				, { Keys.Tab               , AttemptTabComplete }
+				, { Keys.PageUp                   , () => CurrentView.History.PageUp() }
+				, { Keys.PageDown                 , () => CurrentView.History.PageDown() }
+				, { Keys.X|Keys.Control           , Cut }
+				, { Keys.C|Keys.Control           , Copy }
+				, { Keys.V|Keys.Control           , Paste }
+				, { Keys.W|Keys.Control           , ()=>HideView(false) }
+				, { Keys.W|Keys.Control|Keys.Shift, ()=>HideView(true)  }
+				, { Keys.BrowserForward           , NextView }
+				, { Keys.BrowserBack              , PrevView }
+				, { Keys.Left |Keys.Control       , PrevView }
+				, { Keys.Right|Keys.Control       , NextView }
+				, { Keys.Enter                    , OnEnter }
+				, { Keys.Back                     , () => CurrentView.Input.Backspace() }
+				, { Keys.Tab                      , AttemptTabComplete }
 				};
 
 			Commands = new Dictionary<string,Command>()
@@ -152,7 +153,7 @@ namespace UberIRC {
 			CurrentView.Input.Text += Clipboard.GetText() ?? "";
 		}
 
-		void HideView() {
+		void HideView( bool permanently ) {
 			if (CurrentView==null || !CurrentView.IsPerson) return;
 			var original = CurrentView;
 
@@ -161,6 +162,7 @@ namespace UberIRC {
 			if ( CurrentView==original ) return;
 
 			original.IsHidden = true;
+			if ( permanently ) original.IsHiddenPermanently = true;
 		}
 
 		void NextView() {
