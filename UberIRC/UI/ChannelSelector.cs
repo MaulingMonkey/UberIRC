@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright Michael B. E. Rickert 2009
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file ..\..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,6 +24,8 @@ namespace UberIRC {
 
 		Industry.FX.Font GetFontFor( IrcView.Channel channel ) {
 			return (channel==SelectedChannel) ? Selected
+				: channel.IsHighlighted       ? Alerted
+				: channel.IsUnread            ? Active
 				: Inactive
 				;
 		}

@@ -18,6 +18,8 @@ namespace UberIRC {
 		Dictionary<Keys        ,Action > Shortcuts;
 		Dictionary<String      ,Command> Commands;
 
+		IEnumerable<Channel> VisibleOrderedChannels { get { return Views.Values.Where(ch=>!ch.IsHidden).OrderBy(ch=>ch.IsPerson?1:0); }}
+
 		public String Nickname { get {
 			string nick = null;
 			Invoke( new Action( () => {
@@ -100,6 +102,7 @@ namespace UberIRC {
 				, { Keys.X|Keys.Control    , Cut }
 				, { Keys.C|Keys.Control    , Copy }
 				, { Keys.V|Keys.Control    , Paste }
+				, { Keys.W|Keys.Control    , HideView }
 				, { Keys.BrowserForward    , NextView }
 				, { Keys.BrowserBack       , PrevView }
 				, { Keys.Left |Keys.Control, PrevView }
@@ -149,9 +152,20 @@ namespace UberIRC {
 			CurrentView.Input.Text += Clipboard.GetText() ?? "";
 		}
 
+		void HideView() {
+			if (CurrentView==null || !CurrentView.IsPerson) return;
+			var original = CurrentView;
+
+			NextView();
+			if ( CurrentView==original ) PrevView();
+			if ( CurrentView==original ) return;
+
+			original.IsHidden = true;
+		}
+
 		void NextView() {
 			Channel prev = null;
-			foreach ( var chan in Views.Values.OrderBy(chan=>chan.IsPerson?1:0) ) {
+			foreach ( var chan in VisibleOrderedChannels ) {
 				if ( prev == CurrentView ) {
 					CurrentView = chan;
 					return;
@@ -164,7 +178,7 @@ namespace UberIRC {
 		void PrevView() {
 			Channel first = null;
 			Channel prev = null;
-			foreach ( var chan in Views.Values.OrderBy(chan=>chan.IsPerson?1:0) ) {
+			foreach ( var chan in VisibleOrderedChannels ) {
 				if ( first == null ) first = chan;
 				if ( chan == CurrentView ) {
 					if ( prev != null ) CurrentView = prev;
@@ -256,12 +270,13 @@ namespace UberIRC {
 		private void IrcView_Paint(object sender, PaintEventArgs e) {
 			if ( CurrentView == null ) return;
 
+			CurrentView.IsUnread = CurrentView.IsHighlighted = false;
 			CurrentView.ChannelSelector.Selected = normal .Message .Font;
 			CurrentView.ChannelSelector.Inactive = system .Nickname.Font;
 			CurrentView.ChannelSelector.Active   = normal .Nickname.Font;
 			CurrentView.ChannelSelector.Alerted  = alerted.Nickname.Font;
 			CurrentView.ChannelSelector.SelectedChannel = CurrentView;
-			CurrentView.ChannelSelector.Channels        = Views.Values;
+			CurrentView.ChannelSelector.Channels        = VisibleOrderedChannels;
 
 			CurrentView.ChannelSelector.Bounds.Height = CurrentView.ChannelSelector.RequestedSize.Height;
 			CurrentView.ChannelSelector.Bounds.X = CurrentView.Margin;
@@ -288,11 +303,11 @@ namespace UberIRC {
 					( seperator_pen
 					, new Point
 						( CurrentView.Margin
-						, CurrentView.Input.Bounds.Top - CurrentView.Margin
+						, CurrentView.ChannelSelector.Bounds.Bottom + CurrentView.Margin
 						)
 					, new Point
 						( ClientSize.Width - 2*CurrentView.Margin
-						, CurrentView.Input.Bounds.Top - CurrentView.Margin
+						, CurrentView.ChannelSelector.Bounds.Bottom + CurrentView.Margin
 						)
 					);
 			}

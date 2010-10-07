@@ -309,7 +309,11 @@ namespace UberIRC {
 					: normal
 					;
 
-				if ( style == alerted || target == connection.ActualNickname ) MessageBeep(MB_OK);
+				if ( style == alerted || target == connection.ActualNickname ) {
+					MessageBeep(MB_OK);
+					view.IsHighlighted = true;
+				}
+				view.IsUnread = true;
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
@@ -317,6 +321,7 @@ namespace UberIRC {
 				} else {
 					AddPrettyHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
 				}
+
 				if ( view == CurrentView ) Invalidate();
 			});
 		}
@@ -332,12 +337,19 @@ namespace UberIRC {
 					: normal
 					;
 
+				if ( style == alerted || target == connection.ActualNickname ) {
+					MessageBeep(MB_OK);
+					view.IsHighlighted = true;
+				}
+				view.IsUnread = true;
+
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
 					AddHistory( view, who.Nickname, Timestamp, m.Groups["action"].Value, style );
 				} else {
 					AddHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
 				}
+
 				if ( view == CurrentView ) Invalidate();
 			});
 		}
