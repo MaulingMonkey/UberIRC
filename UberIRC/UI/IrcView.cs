@@ -256,21 +256,46 @@ namespace UberIRC {
 		private void IrcView_Paint(object sender, PaintEventArgs e) {
 			if ( CurrentView == null ) return;
 
-			CurrentView.History.Width  = CurrentView.Input.MaxBounds.Width = ClientSize.Width - 2*CurrentView.Margin;
-			CurrentView.History.Height = CurrentView.Input.Bounds.Top - CurrentView.History.Bounds.Top - 2*CurrentView.Margin - 1;
+			CurrentView.ChannelSelector.Selected = normal .Message .Font;
+			CurrentView.ChannelSelector.Inactive = system .Nickname.Font;
+			CurrentView.ChannelSelector.Active   = normal .Nickname.Font;
+			CurrentView.ChannelSelector.Alerted  = alerted.Nickname.Font;
+			CurrentView.ChannelSelector.SelectedChannel = CurrentView;
+			CurrentView.ChannelSelector.Channels        = Views.Values;
+
+			CurrentView.ChannelSelector.Bounds.Height = CurrentView.ChannelSelector.RequestedSize.Height;
+			CurrentView.ChannelSelector.Bounds.X = CurrentView.Margin;
+			CurrentView.ChannelSelector.Bounds.Y = CurrentView.Input.Bounds.Top - 2*CurrentView.Margin - CurrentView.ChannelSelector.Bounds.Height;
+
+			CurrentView.History.Width  = CurrentView.Input.MaxBounds.Width = CurrentView.ChannelSelector.Bounds.Width = ClientSize.Width - 2*CurrentView.Margin;
+			CurrentView.History.Height = CurrentView.ChannelSelector.Bounds.Top - CurrentView.History.Bounds.Top - 2*CurrentView.Margin - 1;
 
 			if ( e.ClipRectangle.IntersectsWith(CurrentView.History.Bounds) ) CurrentView.History.RenderTo( e.Graphics );
-			e.Graphics.DrawLine
-				( new Pen(Color.FromArgb(unchecked((int)0xFFBBBBBBu)))
-				, new Point
-					( CurrentView.Margin
-					, CurrentView.History.Bounds.Bottom + CurrentView.Margin
-					)
-				, new Point
-					( ClientSize.Width - 2*CurrentView.Margin
-					, CurrentView.History.Bounds.Bottom + CurrentView.Margin
-					)
-				);
+			CurrentView.ChannelSelector.RenderTo( e.Graphics );
+			using ( var seperator_pen = new Pen(Color.FromArgb(unchecked((int)0xFFBBBBBBu))) ) {
+				e.Graphics.DrawLine
+					( seperator_pen
+					, new Point
+						( CurrentView.Margin
+						, CurrentView.History.Bounds.Bottom + CurrentView.Margin
+						)
+					, new Point
+						( ClientSize.Width - 2*CurrentView.Margin
+						, CurrentView.History.Bounds.Bottom + CurrentView.Margin
+						)
+					);
+				e.Graphics.DrawLine
+					( seperator_pen
+					, new Point
+						( CurrentView.Margin
+						, CurrentView.Input.Bounds.Top - CurrentView.Margin
+						)
+					, new Point
+						( ClientSize.Width - 2*CurrentView.Margin
+						, CurrentView.Input.Bounds.Top - CurrentView.Margin
+						)
+					);
+			}
 			CurrentView.Input.RenderTo( e.Graphics, cursor );
 		}
 

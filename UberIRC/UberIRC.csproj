@@ -62,6 +62,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="UI\ChannelSelector.cs" />
     <Compile Include="UI\ChatHistory.cs" />
     <Compile Include="UI\IrcView.Channel.cs">
     </Compile>

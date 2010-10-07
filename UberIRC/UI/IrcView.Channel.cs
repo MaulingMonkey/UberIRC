@@ -10,16 +10,20 @@ using Font = Industry.FX.Font;
 namespace UberIRC {
 	public partial class IrcView {
 		public class Channel {
-			public IrcChannelID ID;
-			public ChatHistory  History;
-			public TextBox      Input;
-			public bool         IsPerson;
+			public IrcChannelID    ID;
+			public ChatHistory     History;
+			public ChannelSelector ChannelSelector;
+			public TextBox         Input;
+			public bool            IsPerson;
 
 			public readonly int Margin = 2;
 			public Channel( IrcChannelID id, Font.Library Library, Size ClientSize ) {
 				ID = id;
 				History = new ChatHistory()
 					{ Bounds = new Rectangle( Margin, Margin, ClientSize.Width-2*Margin, ClientSize.Height-2*Margin )
+					};
+				ChannelSelector = new ChannelSelector()
+					{
 					};
 				Input = new TextBox()
 					{ MaxBounds = new Rectangle( 1*Margin, ClientSize.Height-100-Margin, ClientSize.Width-2*Margin, 100 )
