@@ -75,11 +75,14 @@ namespace UberIRC.NET {
 						if ( ( match = new Regex(@"^PING(.*)$").Match(s)).Success ) {
 							var code = match.Groups[1].Value;
 							Send( "PONG" + code );
-						} else if ( (match = new Regex(@"^\:([^ ]+) (\d\d\d) [^: ]+ \:?(.*)$").Match(s)).Success ) {
+						} else if ( (match = new Regex(@"^\:([^ ]+) (\d\d\d) ([^: ]+) \:?(.*)$").Match(s)).Success ) {
 							var sender     = match.Groups[1].Value;
 							var code       = match.Groups[2].Value;
-							var parameters = match.Groups[3].Value;
+							var target     = match.Groups[3].Value;
+							var parameters = match.Groups[4].Value;
 							if (serverIdent == null) serverIdent = sender;
+
+							if ( target != "*" && code != "433" ) ActualNickname=target; // Perhaps we should do this only on code=="001" (welcome) instead?  We seem to get confirmation NICKs from the server for everything but the initial login NICK
 							
 							switch (code) {
 							case "001": // Welcome
@@ -103,6 +106,13 @@ namespace UberIRC.NET {
 									var channel = match.Groups["channel"].Value;
 									var topic   = match.Groups["topic"].Value;
 									foreach ( var l in Listeners ) l.OnTopic( this, null, channel, topic );
+								}
+								break;
+							case "341": // RPL_INVITING
+								if ( (match = new Regex(@"^(?'nick'[^ ]+) (?'channel'.+)$").Match(parameters)).Success ) {
+									var nick    = match.Groups["nick"   ].Value;
+									var channel = match.Groups["channel"].Value;
+									foreach ( var l in Listeners ) l.OnRplInvited( this, new Irc.Actor() { Nickname = nick, Hostname = "???", Username = "???" }, channel );
 								}
 								break;
 							case "353": // RPL_NAMREPLY (Names list)
@@ -140,9 +150,18 @@ namespace UberIRC.NET {
 								var nick = ReadParam(ref parameters);
 								if ( Users.ContainsKey(nick) ) Users.Remove(nick);
 								break;
-							} case "433": // Nick already in use
-								ActualNickname = ActualNickname + "_";
-								Send( "NICK "+ActualNickname); // try a different one
+							} case "433": // ERR_NICKNAMEINUSE Nick already in use
+								if ( ActualNickname == null ) Send( "NICK "+(LastTriedNickname=LastTriedNickname+"_")); // try a different one
+								else foreach ( var l in Listeners ) l.OnErrNickInUse( this, TargetNickname );
+								break;
+							case "482": // ERR_CHANOPRIVSNEEDED "<channel> :You're not channel operator"
+								if ( (match = new Regex(@"^(?'channel'[^ ]+) \:?(?'message'.+)$").Match(parameters)).Success ) {
+									var channel = match.Groups["channel"].Value;
+									var message = match.Groups["message"].Value;
+									foreach ( var l in Listeners ) l.OnErrNotChannelOp( this, channel, message );
+								}
+								break;
+							default:
 								break;
 							}
 						} else if ( (match = new Regex(@"^\:?(?'nick'[^ !]+)!(?'user'[^ @]+)@(?'host'[^ ]+) (?'action'[^ ]+)(?: (?'params'.+))?$").Match(s)).Success ) {
@@ -157,7 +176,6 @@ namespace UberIRC.NET {
 								case "NICK": {
 									var newnick = ReadParam(ref param);
 									if ( nick == ActualNickname ) ActualNickname = newnick; // we got renamed!
-									
 									if ( Users.ContainsKey(nick) ) {
 										var info = Users[nick];
 										if ( !Users.ContainsKey(newnick) ) Users.Add(newnick,info);

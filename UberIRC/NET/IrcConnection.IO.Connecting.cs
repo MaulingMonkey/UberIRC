@@ -31,7 +31,7 @@ namespace UberIRC.NET {
 
 				if (p.Password!=null) Send( "PASS "+p.Password );
 				Send( "USER "+p.User.ID+" "+p.User.Host+" "+p.User.Host+" "+p.User.RealName );
-				Send( "NICK "+(ActualNickname=TargetNickname) );
+				Send( "NICK "+(LastTriedNickname=TargetNickname) );
 				BeginRecv( new byte[4096], 0 );
 			} catch( Exception e ) {
 				Handle(e);

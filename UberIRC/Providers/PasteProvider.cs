@@ -65,7 +65,7 @@ namespace UberIRC.Providers {
 		void PostTextTo( string postformat, string to, string code, Regex scrape ) {
 			var request
 				= String.Join("&",postformat.Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries))
-				.Replace("{poster}",HttpUtility.UrlEncode(View.Nickname))
+				.Replace("{poster}",HttpUtility.UrlEncode(View.ProviderDisplayNickname))
 				.Replace("{code}"  ,HttpUtility.UrlEncode(code))
 				;
 			var client = new WebClient() { Encoding = Encoding.UTF8 };
@@ -78,7 +78,7 @@ namespace UberIRC.Providers {
 		void PostImageTo( string postformat, string to, Image image, Regex scrape ) {
 			postformat
 				= postformat
-				.Replace("{poster}",View.Nickname)
+				.Replace("{poster}",View.ProviderDisplayNickname)
 				;
 			var encoding = Encoding.UTF8;
 
@@ -141,7 +141,7 @@ namespace UberIRC.Providers {
 		}
 		
 		void Post( Paster paster ) {
-			var poster = View.Nickname;
+			var poster = View.ProviderDisplayNickname;
 			var code  = Clipboard.GetText();
 			var image = Clipboard.GetImage();
 

@@ -217,7 +217,6 @@ namespace UberIRC {
 				nick = line;
 			}
 
-			OnInvite( CurrentView.ID.Connection, new Irc.Actor() { Nickname = nick, Hostname = "???", Username = "???" }, channel );
 			CurrentView.ID.Connection.Send( "INVITE "+nick+" "+channel );
 		}
 
@@ -278,7 +277,7 @@ namespace UberIRC {
 			});
 		}
 
-		public void OnNick(IrcConnection connection, Irc.Actor who, string channel ) {
+		public void OnRplInvited(IrcConnection connection, Irc.Actor who, string channel ) {
 			Begin(()=>{
 				var view = ViewOf(connection,who,channel);
 				if ( view==null ) return;
@@ -386,13 +385,21 @@ namespace UberIRC {
 			});
 		}
 
-		public void OnInvite(IrcConnection connection, Irc.Actor who, string channel ) {
+		public void OnErrNickInUse( IrcConnection connection, string nick ) {
 			Begin(()=>{
-				var view = ViewOf(connection,who,channel);
-				if ( view==null ) return;
+				if ( CurrentView==null ) return;
 
-				AddHistory( view, "", Timestamp, who.Nickname + " has been invited to " + channel , system );
-				if ( view == CurrentView ) Invalidate();
+				AddHistory( CurrentView, "", Timestamp, "Nickname " +nick+ " is already in use." , commanderror );
+				Invalidate();
+			});
+		}
+
+		public void OnErrNotChannelOp( IrcConnection connection, string channel, string message ) {
+			Begin(()=>{
+				var view = ViewOf(connection,null,channel);
+				if ( view==null ) return;
+				AddHistory( view, "", Timestamp, string.IsNullOrEmpty(message) ? "You're not a channel operator" : message, commanderror );
+				if ( view==CurrentView ) Invalidate();
 			});
 		}
 

@@ -13,11 +13,15 @@ namespace UberIRC.NET {
 		void OnPrivMsg          ( IrcConnection connection, Actor who, string target , string message );
 		void OnNotice           ( IrcConnection connection, Actor who, string target , string message );
 		void OnNick             ( IrcConnection connection, Actor who, string channel, string newnick );
-		
+
 		void OnTopic            ( IrcConnection connection, Actor op , string channel, string topic   );
 		void OnKick             ( IrcConnection connection, Actor op , string channel, string target, string message );
 		void OnModeChange       ( IrcConnection connection, Actor op , string channel, string mode, string target );
 		void OnChannelModeChange( IrcConnection connection, Actor op , string channel, string mode, string param );
+
+		void OnRplInvited       ( IrcConnection connection, Actor who, string channel ); // 341
+		void OnErrNickInUse     ( IrcConnection connection, string nick ); // 433
+		void OnErrNotChannelOp  ( IrcConnection connection, string channel, string message ); // 482
 
 		void OnRecvParseError   ( IrcConnection connection, string rawrecv, Exception e );
 		void OnConnectionError  ( IrcConnection connection, Exception e );

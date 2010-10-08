@@ -20,11 +20,11 @@ namespace UberIRC {
 
 		IEnumerable<Channel> VisibleOrderedChannels { get { return Views.Values.Where(ch=>!ch.IsHidden).OrderBy(ch=>ch.IsPerson?1:0); }}
 
-		public String Nickname { get {
+		public String ProviderDisplayNickname { get {
 			string nick = null;
 			Invoke( new Action( () => {
 				if ( CurrentView == null ) nick = "UberIRC";
-				else nick = CurrentView.ID.Connection.ActualNickname;
+				else nick = CurrentView.ID.Connection.ActualNickname ?? CurrentView.ID.Connection.TargetNickname;
 			}));
 			return nick;
 		} }

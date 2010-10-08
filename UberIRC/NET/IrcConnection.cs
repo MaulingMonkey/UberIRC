@@ -82,18 +82,17 @@ namespace UberIRC.NET {
 		}
 		
 		IrcConnectParams Parameters;
-		String           actualNickname;
-		String           targetNickname;
 		String           serverIdent;
-		public String ActualNickname { get { return actualNickname; } private set { actualNickname = value; } }
-		public String TargetNickname { get { return targetNickname; } private set { targetNickname = value; } }
+		public String ActualNickname    { get; private set; }
+		public String LastTriedNickname { get; private set; } // Only used in initial auto-nick selection
+		public String TargetNickname    { get; private set; }
 		Encoding         Encoding;
 		bool             AutoRejoin    = true;
 		bool             AutoReconnect = true;
 		readonly HashSet<String>            TargetChannels = new HashSet<String>();
 		readonly Dictionary<String,Channel> Channels = new Dictionary<String,Channel>();
 		readonly Dictionary<String,User>    Users    = new Dictionary<String,User>();
-		[Owns] Timer     HeartbeatTimer = new Timer() { AutoReset = true, Interval = 6000.0f, Enabled = true };
+		[Owns] Timer     HeartbeatTimer = new Timer() { AutoReset = true, Interval = 16000.0f, Enabled = true };
 		
 		Channel AddChannel( string id ) {
 			if ( Channels.ContainsKey(id) ) {
@@ -122,7 +121,7 @@ namespace UberIRC.NET {
 		void HeartbeatTimer_Elapsed(object sender, ElapsedEventArgs e) {
 			lock (Lock) {
 				if ( Client.Connected ) {
-					Send("PING "+serverIdent);
+					if (serverIdent!=null) Send("PING "+serverIdent);
 				} else {
 					BeginReconnect();
 				}
