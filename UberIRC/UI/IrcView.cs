@@ -272,7 +272,7 @@ namespace UberIRC {
 		private void IrcView_Paint(object sender, PaintEventArgs e) {
 			if ( CurrentView == null ) return;
 
-			CurrentView.IsUnread = CurrentView.IsHighlighted = false;
+			CurrentView.IsUnread = CurrentView.IsHighlighted = CurrentView.IsHidden = false;
 			CurrentView.ChannelSelector.Selected = normal .Message .Font;
 			CurrentView.ChannelSelector.Inactive = system .Nickname.Font;
 			CurrentView.ChannelSelector.Active   = normal .Nickname.Font;
