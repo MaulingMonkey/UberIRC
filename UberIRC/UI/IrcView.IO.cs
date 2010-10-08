@@ -164,6 +164,8 @@ namespace UberIRC {
 				irc.Join(url);
 			} else if ( CurrentView != null ) foreach ( var chan in url.Split(',') ) {
 				CurrentView.ID.Connection.Join(chan);
+				var chid = new IrcChannelID() { Connection=CurrentView.ID.Connection, Channel=chan };
+				if (Views.ContainsKey(chid)) Views[chid].IsHidden = false;
 			} else {
 				// lol we can't do anything
 			}

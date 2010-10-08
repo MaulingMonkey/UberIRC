@@ -154,7 +154,7 @@ namespace UberIRC {
 		}
 
 		void HideView( bool permanently ) {
-			if (CurrentView==null || !CurrentView.IsPerson) return;
+			if (CurrentView==null) return;
 			var original = CurrentView;
 
 			NextView();
@@ -162,7 +162,7 @@ namespace UberIRC {
 			if ( CurrentView==original ) return;
 
 			original.IsHidden = true;
-			if ( permanently ) original.IsHiddenPermanently = true;
+			if ( permanently && !CurrentView.IsPerson ) original.IsHiddenPermanently = true;
 		}
 
 		void NextView() {
