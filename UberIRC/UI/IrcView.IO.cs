@@ -391,7 +391,7 @@ namespace UberIRC {
 			Begin(()=>{
 				if ( CurrentView==null ) return;
 
-				AddHistory( CurrentView, "", Timestamp, "Nickname " +nick+ " is already in use." , commanderror );
+				AddHistory( CurrentView, "Error:", Timestamp, "Nickname " +nick+ " is already in use." , commanderror );
 				Invalidate();
 			});
 		}

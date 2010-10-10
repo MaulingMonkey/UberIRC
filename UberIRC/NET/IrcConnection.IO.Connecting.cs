@@ -29,6 +29,7 @@ namespace UberIRC.NET {
 				Client.EndConnect(result);
 				//Stream = Client.GetStream();
 
+				ActualNickname = null;
 				if (p.Password!=null) Send( "PASS "+p.Password );
 				Send( "USER "+p.User.ID+" "+p.User.Host+" "+p.User.Host+" "+p.User.RealName );
 				Send( "NICK "+(LastTriedNickname=TargetNickname) );

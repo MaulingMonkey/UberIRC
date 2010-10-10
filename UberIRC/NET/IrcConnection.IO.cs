@@ -212,6 +212,9 @@ namespace UberIRC.NET {
 										channel.Value.Users.Remove(nick);
 										l.OnQuit( this, actor, channel.Key, message );
 									}
+
+									if ( nick == TargetNickname ) Nick(TargetNickname);
+
 									break;
 								} case "KICK": {
 									var channel = ReadParam(ref param);
