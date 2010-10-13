@@ -3,6 +3,7 @@
 // (See accompanying file ..\..\LICENSE.txt or copy at http://www.boost.org/LICENSE.txt)
 
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
@@ -87,7 +88,7 @@ namespace UberIRC.NET {
 							switch (code) {
 							case "001": // Welcome
 								Registered = true;
-								foreach ( string channel in TargetChannels ) Send("JOIN "+(channel.StartsWith("#")?channel:"#"+channel));
+								Send("JOIN "+string.Join(",",TargetChannels.Select(channel=>channel.StartsWith("#")?channel:"#"+channel).ToArray()));
 								break;
 							case "311": // RPL_WHOISUSER "<nick> <user> <host> * :<real name>"
 							case "314": // RPL_WHOWASUSER "<nick> <user> <host> * :<real name>"
