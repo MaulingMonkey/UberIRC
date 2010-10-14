@@ -129,10 +129,15 @@ namespace UberIRC {
 			CurrentView.Input.Text = "";
 
 			foreach ( var line in torun.Split( new[] { "\r\n", "\n\r", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries ) )
-			if ( line.StartsWith("//") )
+			if ( line.StartsWith("/ ") )
 			{
 				// shorthand command for "/say /"
-				SendMessage(line.Substring(1));
+				SendMessage(line.Remove(1,1));
+			}
+			else if ( line.StartsWith("//") )
+			{
+				// shorthand command for "/say //"
+				SendMessage(line);
 			}
 			else if ( line.StartsWith("/") )
 			{
