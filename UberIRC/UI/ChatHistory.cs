@@ -121,8 +121,8 @@ namespace UberIRC {
 			History.Add( new Entry() { Base = history } );
 		}
 
-		public void PageUp() { CurrentIndex = Math.Max(0,CurrentIndex-10); }
-		public void PageDown() { CurrentIndex = Math.Min(History.Count-1,CurrentIndex+10); }
+		public void PageUp( int skipby ) { CurrentIndex = Math.Max(0,CurrentIndex-skipby); }
+		public void PageDown( int skipby ) { CurrentIndex = Math.Min(History.Count-1,CurrentIndex+skipby); }
 
 		void UpdateLineCache( int index ) {
 			Entry extentry = History[index];

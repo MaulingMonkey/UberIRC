@@ -97,8 +97,12 @@ namespace UberIRC {
 		void InitializeShortcutsAndCommands() {
 			Shortcuts = new Dictionary<Keys,Action>()
 				{ { Keys.None, null }
-				, { Keys.PageUp                   , () => CurrentView.History.PageUp() }
-				, { Keys.PageDown                 , () => CurrentView.History.PageDown() }
+				, { Keys.PageUp                   , () => CurrentView.History.PageUp(10) }
+				, { Keys.PageDown                 , () => CurrentView.History.PageDown(10) }
+				, { Keys.PageUp  |Keys.Shift      , () => CurrentView.History.PageUp(1) }
+				, { Keys.PageDown|Keys.Shift      , () => CurrentView.History.PageDown(1) }
+				, { Keys.PageUp  |Keys.Control    , () => CurrentView.History.PageUp(100) }
+				, { Keys.PageDown|Keys.Control    , () => CurrentView.History.PageDown(100) }
 				, { Keys.X|Keys.Control           , Cut }
 				, { Keys.C|Keys.Control           , Copy }
 				, { Keys.V|Keys.Control           , Paste }
