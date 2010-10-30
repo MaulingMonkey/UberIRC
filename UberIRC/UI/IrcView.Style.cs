@@ -10,7 +10,7 @@ using UberIRC.Properties;
 namespace UberIRC {
 	public partial class IrcView {
 		[Owns] Font.Library library;
-		/*[Owns]*/ Font ltgray4, ltblue4, ltgray5, ltblue5, gray4, gray5, blue4, blue5, purple, black, red4, red5;
+		/*[Owns]*/ Font ltgray4, ltblue4, ltgray5, ltblue5, gray4, gray5, blue4, blue5, purple, black, red4, red5, orange;
 
 		// http://www.fileformat.info/info/unicode/block/miscellaneous_symbols/images.htm
 		// http://www.fileformat.info/info/unicode/category/So/list.htm
@@ -35,7 +35,7 @@ namespace UberIRC {
 				else                        Text = "UberIRC";
 			}
 		}
-		TextStyle semiignore, normal, self, alerted, commanderror, system, smallalert;
+		TextStyle semiignore, normal, self, alerted, commanderror, system, smallalert, baddyalert;
 
 		public void InitializeStyle() {
 			library = new Font.Library();
@@ -53,6 +53,7 @@ namespace UberIRC {
 			black   = new Font( library, "Uber Console", 5 ) { Color = Color.Black  };
 			red4    = new Font( library, "Uber Console", 4 ) { Color = Color.FromArgb(unchecked((int)0x88FF0000u)) };
 			red5    = new Font( library, "Uber Console", 5 ) { Color = Color.Red    };
+			orange  = new Font( library, "Uber Console", 5 ) { Color = Color.Orange };
 			
 			semiignore = new TextStyle()
 				{ Timestamp = new ColumnStyle() { Font = ltgray4, Width = 35 }
@@ -85,6 +86,12 @@ namespace UberIRC {
 				{ Timestamp = new ColumnStyle() { Font = red4, Width = 35 }
 				, Nickname  = new ColumnStyle() { Font = red4, Width = 100, HorizontalAlignment = HorizontalAlignment.Right }
 				, Message   = new MessageColumnStyle() { Font = red4, LinkFont = blue4, Width = -1 }
+				};
+
+			baddyalert = new TextStyle()
+				{ Timestamp = new ColumnStyle()        { Font = gray4 , Width = 35 }
+				, Nickname  = new ColumnStyle()        { Font = orange, Width = 100, HorizontalAlignment = HorizontalAlignment.Right }
+				, Message   = new MessageColumnStyle() { Font = black , LinkFont = blue5, Width = -1 }
 				};
 		}
 	}

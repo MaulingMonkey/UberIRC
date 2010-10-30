@@ -6,10 +6,12 @@ using System.Drawing;
 using Industry.FX;
 using UberIRC.NET;
 using Font = Industry.FX.Font;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace UberIRC {
 	public partial class IrcView {
-		public class Channel {
+		public partial class Channel {
 			public IrcChannelID    ID;
 			public ChatHistory     History;
 			public ChannelSelector ChannelSelector;

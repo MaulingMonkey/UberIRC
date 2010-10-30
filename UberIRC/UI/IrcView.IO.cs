@@ -309,11 +309,9 @@ namespace UberIRC {
 				var view = ViewOf(connection,who,target);
 				if ( view==null ) return;
 
-				var style
-					= connection.ActualNickname == who.Nickname     ? self
-					: message.Contains( connection.ActualNickname ) ? alerted
-					: normal
-					;
+				var style = GetStyleFor( view, connection, who, target, message );
+
+				if ( style == null ) return;
 
 				if ( style == alerted || target == connection.ActualNickname )
 				if ( !view.IsHiddenPermanently )
@@ -341,11 +339,9 @@ namespace UberIRC {
 				var view = ViewOf(connection,who,target);
 				if ( view==null ) return;
 
-				var style
-					= connection.ActualNickname == who.Nickname     ? self
-					: message.Contains( connection.ActualNickname ) ? alerted
-					: normal
-					;
+				var style = GetStyleFor( view, connection, who, target, message );
+
+				if ( style == null ) return;
 
 				if ( style == alerted || target == connection.ActualNickname )
 				if ( !view.IsHiddenPermanently )

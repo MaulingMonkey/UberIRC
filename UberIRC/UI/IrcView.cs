@@ -118,27 +118,35 @@ namespace UberIRC {
 				};
 
 			Commands = new Dictionary<string,Command>()
-				{ { "join"   , Join }
-				, { "part"   , Part }
-				, { "leave"  , Part }
-				, { "say"    , SendMessage }
-				, { "me"     , SendAction }
-				, { "invite" , SendInvite }
-				, { "pm"     , SendPrivateMessage }
-				, { "msg"    , SendPrivateMessage }
-				, { "nick"   , ChangeNick }
-				, { "topic"  , Topic }
-				, { "o/"     , rest => SendMessage("/o/ "+rest) }
-				, { "kick"   , Kick }
-				, { "ban"    , Ban }
-				, { "kickban", KickBan }
-				, { "kb"     , KickBan }
-				, { "unban"  , UnBan }
-				, { "mode", ChangeModes }
+				{ { "join"      , Join }
+				, { "part"      , Part }
+				, { "leave"     , Part }
+				, { "say"       , SendMessage }
+				, { "me"        , SendAction }
+				, { "invite"    , SendInvite }
+				, { "pm"        , SendPrivateMessage }
+				, { "msg"       , SendPrivateMessage }
+				, { "nick"      , ChangeNick }
+				, { "topic"     , Topic }
+				, { "o/"        , rest => SendMessage("/o/ "+rest) }
+				, { "kick"      , Kick }
+				, { "ban"       , Ban }
+				, { "kickban"   , KickBan }
+				, { "kb"        , KickBan }
+				, { "unban"     , UnBan }
+				, { "mode"      , ChangeModes }
+				, { "ignore"    , Ignore }
+				, { "unignore"  , UnIgnore }
+				, { "semiignore", SemiIgnore }
+				, { "twit"      , Baddy }
+				, { "evil"      , Baddy }
+				, { "baddy"     , Baddy }
+				, { "baddie"    , Baddy }
+				, { "untwit"    , UnBaddy }
+				, { "unevil"    , UnBaddy }
+				, { "unbaddy"   , UnBaddy }
+				, { "unbaddie"  , UnBaddy }
 				};
-
-			//foreach ( var command in Settings.Commands ) Commands.Add( command.Key, command.Value );
-			//foreach ( var shortcut in Settings.Shortcuts ) Shortcuts.Add( shortcut.Key, shortcut.Value );
 		}
 
 		void Cut() {
