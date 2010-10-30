@@ -63,12 +63,15 @@ namespace UberIRC {
 				if ( view == null ) return;
 
 				lock ( view.NuhFilters ) if ( pattern == "" ) {
-					foreach ( var filter in view.NuhFilters.Where(f=>f.Style==null) ) {
-						AddHistory( view, "", Timestamp, desc+"ing "+pattern, system );
+					bool first = true;
+					foreach ( var filter in view.NuhFilters.Where(f=>f.Style==style) ) {
+						AddHistory( view, first?(desc+"ing"):"", Timestamp, filter.Pattern, system );
+						first = false;
 					}
+					if ( first ) AddHistory( view, desc+"ing", Timestamp, "absolutely nobody", system );
 				} else {
 					view.NuhFilters.Add( new Filter() { Pattern=pattern, Regex=RegexFromPattern(pattern), Style=style } );
-					AddHistory( view, "", Timestamp, "You are "+desc+"ing "+pattern, system );
+					AddHistory( view, "", Timestamp, "You are now "+desc+"ing "+pattern, system );
 				}
 			});
 		}
@@ -81,7 +84,7 @@ namespace UberIRC {
 				lock ( view.NuhFilters ) if ( view.NuhFilters.RemoveAll(f=>f.Pattern==pattern&&styles.Any(s=>f.Style==s))>0 ) {
 					AddHistory( CurrentView, "", Timestamp, "You have un"+desc+"ed "+pattern, system );
 				} else {
-					AddHistory( CurrentView, "", Timestamp, "You are not "+desc+"ing "+pattern, commanderror );
+					AddHistory( CurrentView, "ERROR", Timestamp, "You are not "+desc+"ing "+pattern, commanderror );
 				}
 			});
 		}
