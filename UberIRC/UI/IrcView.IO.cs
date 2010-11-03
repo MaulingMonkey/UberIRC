@@ -321,7 +321,6 @@ namespace UberIRC {
 				}
 				view.IsUnread = true;
 				view.IsHidden = view.IsHiddenPermanently;
-				Invalidate( view.ChannelSelector.Bounds, false );
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
@@ -330,7 +329,7 @@ namespace UberIRC {
 					AddPrettyHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
 				}
 
-				if ( view == CurrentView ) Invalidate();
+				Invalidate();
 			});
 		}
 
@@ -351,7 +350,6 @@ namespace UberIRC {
 				}
 				view.IsUnread = true;
 				view.IsHidden = view.IsHiddenPermanently;
-				Invalidate( view.ChannelSelector.Bounds, false );
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
@@ -360,7 +358,7 @@ namespace UberIRC {
 					AddHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
 				}
 
-				if ( view == CurrentView ) Invalidate();
+				Invalidate();
 			});
 		}
 
