@@ -28,17 +28,13 @@ namespace UberIRC {
 			Invalidate();
 		}
 
-		const string fUrlProtocol = @"([^\s]+?:\/\/[^\s]+?)";
-		const string fUrlTLD      = @"([^\s]+?\.(?:com|net|org|edu|gov|mil|info|biz)[^\s]*?)";
-		const string fUrlBLD      = @"((?:www|ftp)\.[^\s]+?)";
+		const string fUrlContinue = "(?:[^.,;:!?')\"\\s]|(\\S(?=\\S|$)))";
+		const string fUrlProtocol = @"([-.+a-zA-Z0-9]+?:\/\/"+fUrlContinue+"+)";
+		const string fUrlTLD      = @"([^\s]+?\.(?:com|net|org|edu|gov|mil|info|biz)"+fUrlContinue+"*)";
+		const string fUrlBLD      = @"((?:www|ftp)\."+fUrlContinue+"+)";
 
-		static readonly Regex reUrlProtocol = new Regex("^"+fUrlProtocol);
-		static readonly Regex reUrlPatterns = new Regex
-			(@"\b(?:" + fUrlProtocol
-			+ "|"  + fUrlTLD
-			+ "|"  + fUrlBLD
-			+@")(?=\s|$)"
-			);
+		static readonly Regex reUrlProtocol = new Regex("^"+fUrlProtocol,RegexOptions.Compiled);
+		static readonly Regex reUrlPatterns = new Regex(@"\b(?:" + fUrlProtocol + "|"  + fUrlTLD + "|"  + fUrlBLD + ")", RegexOptions.Compiled);
 
 		readonly static string[] SafeProtocols = new[] { "http", "ftp", "https" };
 		readonly static string[] UnsafeProtocols = new[] { "file" };
