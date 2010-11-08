@@ -319,7 +319,7 @@ namespace UberIRC {
 				view.IsHidden = view.IsHiddenPermanently;
 
 				Match m;
-				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
+				if ( (m=new Regex("\u0001ACTION (?'action'.*)\u0001").Match(message)).Success ) {
 					AddPrettyHistory( view, who.Nickname, Timestamp, m.Groups["action"].Value, style );
 				} else {
 					AddPrettyHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
