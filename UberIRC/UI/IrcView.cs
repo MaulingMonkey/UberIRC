@@ -24,7 +24,7 @@ namespace UberIRC {
 			string nick = null;
 			Invoke( new Action( () => {
 				if ( CurrentView == null ) nick = "UberIRC";
-				else nick = CurrentView.ID.Connection.ActualNickname ?? CurrentView.ID.Connection.TargetNickname;
+				else nick = CurrentView.ID.Connection.ActualNickname.ToString() ?? CurrentView.ID.Connection.TargetNickname.ToString();
 			}));
 			return nick;
 		} }

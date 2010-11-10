@@ -39,7 +39,7 @@ namespace UberIRC.NET {
 
 	public struct IrcChannelID {
 		public IrcConnection Connection;
-		public String        Channel;
+		public CIIrcName     Channel;
 	}
 
 	public struct IrcConnectUserParams {
@@ -83,15 +83,15 @@ namespace UberIRC.NET {
 		
 		IrcConnectParams Parameters;
 		String           serverIdent;
-		public String ActualNickname    { get; private set; }
-		public String LastTriedNickname { get; private set; } // Only used in initial auto-nick selection
-		public String TargetNickname    { get; private set; }
+		public CIIrcName ActualNickname    { get; private set; }
+		public CIIrcName LastTriedNickname { get; private set; } // Only used in initial auto-nick selection
+		public CIIrcName TargetNickname    { get; private set; }
 		Encoding         Encoding;
 		bool             AutoRejoin    = true;
 		bool             AutoReconnect = true;
-		readonly HashSet<String>            TargetChannels = new HashSet<String>();
-		readonly Dictionary<String,Channel> Channels = new Dictionary<String,Channel>();
-		readonly Dictionary<String,User>    Users    = new Dictionary<String,User>();
+		readonly HashSet<String>               TargetChannels = new HashSet<String>();
+		readonly Dictionary<CIIrcName,Channel> Channels = new Dictionary<CIIrcName,Channel>();
+		readonly Dictionary<CIIrcName,User>    Users    = new Dictionary<CIIrcName,User>();
 		[Owns] Timer     HeartbeatTimer = new Timer() { AutoReset = true, Interval = 16000.0f, Enabled = true };
 		
 		Channel AddChannel( string id ) {
