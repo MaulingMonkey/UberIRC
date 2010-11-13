@@ -56,9 +56,9 @@ namespace UberIRC {
 			orange  = new Font( library, "Uber Console", 5 ) { Color = Color.Orange };
 			
 			semiignore = new TextStyle()
-				{ Timestamp = new ColumnStyle() { Font = ltgray4, Width = 35 }
-				, Nickname  = new ColumnStyle() { Font = ltgray4, Width = 100, HorizontalAlignment = HorizontalAlignment.Right }
-				, Message   = new MessageColumnStyle() { Font = ltgray4, LinkFont = ltblue4, Width = -1 }
+				{ Timestamp = new ColumnStyle() { Font = gray4, Width = 35 }
+				, Nickname  = new ColumnStyle() { Font = gray4, Width = 100, HorizontalAlignment = HorizontalAlignment.Right }
+				, Message   = new MessageColumnStyle() { Font = gray4, LinkFont = ltblue4, Width = -1 }
 				};
 			normal = new TextStyle()
 				{ Timestamp = new ColumnStyle() { Font = gray4, Width = 35 }

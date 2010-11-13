@@ -1,7 +1,8 @@
+Make styles customizable via settings
+
 Implement a setting for PMs & NOTICEs:  Show in current view, PMs tab, or in multiple PM tabs
 Merge Irc.Actor and IrcConnection.User (into .User?)
 
-Redo Industry.FX.Font so we can get /semiignore
 UNDO/REDO
 Uparrow
 I want to click/open URLs :(
