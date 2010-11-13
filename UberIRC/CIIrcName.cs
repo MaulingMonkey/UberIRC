@@ -9,7 +9,7 @@ namespace UberIRC {
 		public static implicit operator CIIrcName( string s ) { return new CIIrcName() { Data=s }; }
 		public static implicit operator string( CIIrcName n ) { return n.Data; }
 
-		public string ToLower() { return Data.ToLowerInvariant().Replace('{','[').Replace('}',']').Replace('|','\\'); } // Silly scandinavians :<
+		public string ToLower() { return (Data??"").ToLowerInvariant().Replace('{','[').Replace('}',']').Replace('|','\\'); } // Silly scandinavians :<
 
 		public static bool operator==( CIIrcName lhs, CIIrcName rhs ) { return lhs.ToLower() == rhs.ToLower(); }
 		public static bool operator!=( CIIrcName lhs, CIIrcName rhs ) { return lhs.ToLower() != rhs.ToLower(); }
