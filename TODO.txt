@@ -5,7 +5,6 @@ Merge Irc.Actor and IrcConnection.User (into .User?)
 
 UNDO/REDO
 Uparrow
-I want to click/open URLs :(
 Refactor everything
 Inline media?  Images, Youtube
 
