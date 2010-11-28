@@ -14,8 +14,6 @@ namespace UberIRC {
 		public VerticalAlignment VerticalAlignment = VerticalAlignment.Top;
 		public HorizontalAlignment HorizontalAlignment = HorizontalAlignment.Left;
 
-		public void Backspace() { if ( Text.Length>0 ) Text = Text.Substring(0,Text.Length-1); }
-
 		public Rectangle Bounds { get {
 			var m = Font.MeasureLine(Text+" ").Bounds;
 			var w = Math.Min( m.Width , MaxBounds.Width  );

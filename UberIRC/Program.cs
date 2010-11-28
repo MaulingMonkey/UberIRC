@@ -33,7 +33,11 @@ namespace UberIRC {
 
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			using ( var view = new IrcView(settings) ) Application.Run(view);
+			try {
+				using ( var view = new IrcView(settings) ) Application.Run(view);
+			} finally {
+				Sounds.DisposeOfXAudio2();
+			}
 		}
 	}
 }

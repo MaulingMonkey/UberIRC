@@ -16,7 +16,13 @@ namespace UberIRC {
 	public partial class IrcView : NET.IEventListener {
 		[Owns] Irc irc;
 
-		void Begin( Action a ) { BeginInvoke(a); }
+		void Begin( Action a ) {
+			try {
+				BeginInvoke(a);
+			} catch ( InvalidOperationException ) {
+				// Form must be disposing/disposed/gone
+			}
+		}
 
 		void AddHistory( Channel view, string nickname, string timestamp, string message, TextStyle style ) {
 			view.History.Add( new HistoryEntry()
@@ -224,10 +230,10 @@ namespace UberIRC {
 		}
 
 		public void BeginTrySendMessage( string line ) {
-			BeginInvoke( new Action( () => { if ( CurrentView!=null ) SendMessage(line); } ) );
+			Begin( () => { if ( CurrentView!=null ) SendMessage(line); } );
 		}
 		public void BeginTrySendAction( string line ) {
-			BeginInvoke( new Action( () => { if ( CurrentView!=null ) SendAction(line); } ) );
+			Begin( () => { if ( CurrentView!=null ) SendAction(line); } );
 		}
 
 		public void OnChannelModeChange(IrcConnection connection, Irc.Actor op, string channel, string mode, string param) {
@@ -312,7 +318,7 @@ namespace UberIRC {
 				if ( style == alerted || target == connection.ActualNickname )
 				if ( !view.IsHiddenPermanently )
 				{
-					MessageBeep(MB_OK);
+					Sounds.Beep.Play(this);
 					view.IsHighlighted = true;
 				}
 				view.IsUnread = true;
@@ -341,7 +347,7 @@ namespace UberIRC {
 				if ( style == alerted || target == connection.ActualNickname )
 				if ( !view.IsHiddenPermanently )
 				{
-					MessageBeep(MB_OK);
+					Sounds.Beep.Play(this);
 					view.IsHighlighted = true;
 				}
 				view.IsUnread = true;

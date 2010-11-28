@@ -79,8 +79,6 @@
     <Compile Include="UI\IrcView.Filtering.cs" />
     <Compile Include="UI\IrcView.IO.cs">
     </Compile>
-    <Compile Include="UI\IrcView.PInvokes.cs">
-    </Compile>
     <Compile Include="UI\IrcView.Style.cs">
     </Compile>
     <Compile Include="UI\TextBox.cs" />
@@ -99,6 +97,10 @@
     <ProjectReference Include="..\Industry\Industry.csproj">
       <Project>{747D732F-B7F8-40EB-A782-907ADFBC222D}</Project>
       <Name>Industry</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UberIRC.Sounds\UberIRC.Sounds.csproj">
+      <Project>{CE3FDD80-A104-4B91-A659-05FA8D3C5FD3}</Project>
+      <Name>UberIRC.Sounds</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

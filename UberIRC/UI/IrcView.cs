@@ -30,14 +30,14 @@ namespace UberIRC {
 		} }
 
 		public void BeginTryPasteLink( string url ) {
-			BeginInvoke( new Action( () => {
+			Begin( () => {
 				if ( CurrentView == null ) return;
 				bool spaceit
 					= CurrentView.Input.Text.Length!=0
 					&& !CurrentView.Input.Text.EndsWith(" ")
 					;
 				CurrentView.Input.Text += (spaceit?" ":"") + url;
-			}));
+			});
 		}
 		
 		void IDisposable.Dispose() {
@@ -113,7 +113,6 @@ namespace UberIRC {
 				, { Keys.Left |Keys.Control       , PrevView }
 				, { Keys.Right|Keys.Control       , NextView }
 				, { Keys.Enter                    , OnEnter }
-				, { Keys.Back                     , () => CurrentView.Input.Backspace() }
 				, { Keys.Tab                      , AttemptTabComplete }
 				};
 
@@ -352,7 +351,7 @@ namespace UberIRC {
 					CurrentView.Input.Text = text.Substring(0,text.Length-1);
 					Invalidate();
 				} else {
-					MessageBeep(MB_ICONEXCLAMATION);
+					Sounds.Beep.Play(this);
 				}
 				break;
 			default:
