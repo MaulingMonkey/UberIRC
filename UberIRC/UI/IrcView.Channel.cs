@@ -15,6 +15,7 @@ namespace UberIRC {
 			public IrcChannelID    ID;
 			public ChatHistory     History;
 			public ChannelSelector ChannelSelector;
+			public UserList        UserList;
 			public TextBox         Input;
 			public bool            IsPerson;
 			public bool            IsUnread, IsHighlighted, IsHidden, IsHiddenPermanently;
@@ -27,6 +28,9 @@ namespace UberIRC {
 					};
 				ChannelSelector = new ChannelSelector()
 					{
+					};
+				UserList = new UserList()
+					{ SelectedChannel = this
 					};
 				Input = new TextBox()
 					{ MaxBounds = new Rectangle( 1*Margin, ClientSize.Height-100-Margin, ClientSize.Width-2*Margin, 100 )

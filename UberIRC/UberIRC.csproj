@@ -82,6 +82,7 @@
     <Compile Include="UI\IrcView.Style.cs">
     </Compile>
     <Compile Include="UI\TextBox.cs" />
+    <Compile Include="UI\UserList.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\DefaultSettings.xml" />

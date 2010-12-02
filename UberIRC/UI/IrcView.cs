@@ -291,6 +291,8 @@ namespace UberIRC {
 			CurrentView.ChannelSelector.SelectedChannel = CurrentView;
 			CurrentView.ChannelSelector.Channels        = VisibleOrderedChannels;
 
+			CurrentView.UserList.Normal = normal.Message.Font;
+
 			CurrentView.ChannelSelector.Bounds.Height = CurrentView.ChannelSelector.RequestedSize.Height;
 			CurrentView.ChannelSelector.Bounds.X = CurrentView.Margin;
 			CurrentView.ChannelSelector.Bounds.Y = CurrentView.Input.Bounds.Top - 2*CurrentView.Margin - CurrentView.ChannelSelector.Bounds.Height;
@@ -298,8 +300,21 @@ namespace UberIRC {
 			CurrentView.History.Width  = CurrentView.Input.MaxBounds.Width = CurrentView.ChannelSelector.Bounds.Width = ClientSize.Width - 2*CurrentView.Margin;
 			CurrentView.History.Height = CurrentView.ChannelSelector.Bounds.Top - CurrentView.History.Bounds.Top - 2*CurrentView.Margin - 1;
 
+			bool show_userlist = CurrentView.UserList.RequestedSize != Size.Empty;
+
+			if ( show_userlist ) {
+				CurrentView.History.Width -= 2*CurrentView.Margin+CurrentView.UserList.RequestedSize.Width;
+				CurrentView.UserList.Bounds = new Rectangle()
+					{ X = CurrentView.History.X + CurrentView.History.Width + 2
+					, Y = CurrentView.History.Y
+					, Width = CurrentView.UserList.RequestedSize.Width
+					, Height = CurrentView.History.Height
+					};
+			}
+
 			if ( e.ClipRectangle.IntersectsWith(CurrentView.History.Bounds) ) CurrentView.History.RenderTo( e.Graphics );
 			CurrentView.ChannelSelector.RenderTo( e.Graphics );
+			if ( show_userlist ) CurrentView.UserList.RenderTo( e.Graphics );
 			using ( var seperator_pen = new Pen(Color.FromArgb(unchecked((int)0xFFBBBBBBu))) ) {
 				e.Graphics.DrawLine
 					( seperator_pen
@@ -321,6 +336,17 @@ namespace UberIRC {
 					, new Point
 						( ClientSize.Width - 2*CurrentView.Margin
 						, CurrentView.ChannelSelector.Bounds.Bottom + CurrentView.Margin
+						)
+					);
+				if ( show_userlist ) e.Graphics.DrawLine
+					( seperator_pen
+					, new Point
+						( CurrentView.UserList.Bounds.Left-CurrentView.Margin
+						, CurrentView.UserList.Bounds.Top
+						)
+					, new Point
+						( CurrentView.UserList.Bounds.Left-CurrentView.Margin
+						, CurrentView.UserList.Bounds.Bottom+CurrentView.Margin
 						)
 					);
 			}
