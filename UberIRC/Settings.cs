@@ -106,6 +106,8 @@ namespace UberIRC {
 		}
 
 		public Server ReadServer( XmlNode server ) {
+			if ( server==null ) return null;
+
 			var s = new Server();
 
 			foreach ( XmlAttribute attribute in server.Attributes )
@@ -132,7 +134,7 @@ namespace UberIRC {
 				throw new FormatException( "Unexpected attribute for <server> tag, "+attribute.Name );
 			}
 
-			if ( server.Name != "default" && s.Uri == null ) throw new FormatException( "<server> tag needs a url attribute" );
+			if ( server.Name != "defaults" && s.Uri == null ) throw new FormatException( "<server> tag needs a url attribute" );
 
 			foreach ( XmlNode channel in server.SelectNodes("./channel") ) s.Channels.Add( ReadChannel(channel) );
 
@@ -153,7 +155,7 @@ namespace UberIRC {
 				XML.Load(reader);
 			}
 			DefaultServerSettings
-				= ReadServer( XML.SelectSingleNode("//default") )
+				= ReadServer( XML.SelectSingleNode("//defaults") )
 				?? new Server()
 					{ AutoConnect   = false
 					, AutoReconnect = true
