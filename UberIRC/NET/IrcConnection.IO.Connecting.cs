@@ -14,9 +14,9 @@ namespace UberIRC.NET {
 				Registered = false;
 				var p = Parameters;
 
+				Channels.Clear(); //foreach ( var channel in Channels.Values ) channel.Names.Clear();
 				Client = new TcpClient();
 				Client.BeginConnect( p.To.Hostname, p.To.Port ?? (p.To.SSL ? 9998 : 6667), new AsyncCallback(OnReconnect), null );
-				Channels.Clear(); //foreach ( var channel in Channels.Values ) channel.Names.Clear();
 			} catch( Exception e ) {
 				Handle(e);
 			}

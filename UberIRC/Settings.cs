@@ -166,7 +166,14 @@ namespace UberIRC {
 		}
 
 		public IEnumerable<Server> Servers { get {
-			foreach ( XmlNode serverxml in XML.SelectNodes("//server") ) yield return ReadServer(serverxml);
+			foreach ( XmlNode serverxml in XML.SelectNodes("//server") ) {
+				var server = ReadServer(serverxml);
+				server.Nickname = server.Nickname ?? DefaultServerSettings.Nickname;
+				server.Username = server.Username ?? DefaultServerSettings.Username;
+				server.Userhost = server.Userhost ?? DefaultServerSettings.Userhost;
+				server.Realname = server.Realname ?? DefaultServerSettings.Realname;
+				yield return server;
+			}
 		}}
 	}
 }
