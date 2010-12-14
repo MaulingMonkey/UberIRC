@@ -30,15 +30,15 @@ namespace UberIRC.NET {
 		public IrcConnection Connect( string url ) { return Connect( new Uri(url) ); }
 		public IrcConnection Connect( Uri uri ) { return Connect( UriToConnectionId(uri) ); }
 		public IrcConnection Connect( IrcConnectionID id ) {
-			var server = this.settings.Servers.First( (s) => UriToConnectionId(s.Uri) == id );
-			
+			var server = this.settings.Servers.FirstOrDefault( (s) => UriToConnectionId(s.Uri) == id ) ?? this.settings.DefaultServerSettings;
+
 			var p = new IrcConnectParams()
-				{ To = id
+				{ To   = id
 				, User =
-					{ Host = server.Userhost
+					{ Host     = server.Userhost
 					, RealName = server.Realname
-					, ID = server.Username
-					, Nick = server.Nickname
+					, ID       = server.Username
+					, Nick     = server.Nickname
 					}
 				, Encoding = Encoding.UTF8
 				, Password = server.Password

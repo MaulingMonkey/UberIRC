@@ -54,16 +54,7 @@ namespace UberIRC {
 			foreach ( var provider in Providers ) foreach ( var shortcut in provider.Shortcuts ) yield return shortcut;
 		}}
 
-		Server DefaultServerSettings = new Server()
-			{ AutoConnect   = false
-			, AutoReconnect = true
-			, Nickname      = "Guest"
-			, Username      = "uberirc"
-			, Password      = null
-			, Userhost      = "*"
-			, Realname      = "*"
-			};
-		List<Server> servers = new List<Server>();
+		public Server DefaultServerSettings { get; private set; }
 
 		Dictionary<string,Keys> AltKeyNames = new Dictionary<string,Keys>()
 			{ { "0", Keys.D0 }
@@ -141,8 +132,8 @@ namespace UberIRC {
 				throw new FormatException( "Unexpected attribute for <server> tag, "+attribute.Name );
 			}
 
-			if ( s.Uri == null ) throw new FormatException( "<server> tag needs a url attribute" );
-			
+			if ( server.Name != "default" && s.Uri == null ) throw new FormatException( "<server> tag needs a url attribute" );
+
 			foreach ( XmlNode channel in server.SelectNodes("./channel") ) s.Channels.Add( ReadChannel(channel) );
 
 			return s;
@@ -154,15 +145,6 @@ namespace UberIRC {
 			Path = path;
 			Reload();
 			Inject(this);
-
-			foreach ( XmlNode server in XML.SelectNodes("//server") ) servers.Add( ReadServer(server) );
-
-			foreach ( var s in servers ) {
-				if ( s.Nickname == null ) s.Nickname = DefaultServerSettings.Nickname;
-				if ( s.Username == null ) s.Username = "uberirc";
-				if ( s.Realname == null ) s.Realname = "*";
-				if ( s.Userhost == null ) s.Userhost = "*";
-			}
 		}
 
 		public void Reload() {
@@ -170,8 +152,21 @@ namespace UberIRC {
 				XML = new XmlDocument();
 				XML.Load(reader);
 			}
+			DefaultServerSettings
+				= ReadServer( XML.SelectSingleNode("//default") )
+				?? new Server()
+					{ AutoConnect   = false
+					, AutoReconnect = true
+					}
+				;
+			if ( DefaultServerSettings.Nickname == null ) DefaultServerSettings.Nickname = "UberGuest";
+			if ( DefaultServerSettings.Username == null ) DefaultServerSettings.Username = "uberirc";
+			if ( DefaultServerSettings.Userhost == null ) DefaultServerSettings.Userhost = "*";
+			if ( DefaultServerSettings.Realname == null ) DefaultServerSettings.Realname = "*";
 		}
 
-		public IEnumerable<Server> Servers { get { foreach ( var server in servers ) yield return server; } }
+		public IEnumerable<Server> Servers { get {
+			foreach ( XmlNode serverxml in XML.SelectNodes("//server") ) yield return ReadServer(serverxml);
+		}}
 	}
 }
