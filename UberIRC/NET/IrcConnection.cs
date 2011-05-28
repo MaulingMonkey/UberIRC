@@ -4,9 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Industry;
 using System.Timers;
+using Industry;
 
 namespace UberIRC.NET {
 	public struct IrcConnectionID {
@@ -133,8 +134,10 @@ namespace UberIRC.NET {
 		public readonly HashSet<IEventListener> Listeners;
 
 		public IEnumerable<String> WhosIn( string channel ) {
-			if ( Channels.ContainsKey(channel) ) return Channels[channel].Users;
-			else return new string[]{};
+			lock (Lock) {
+				if ( Channels.ContainsKey(channel) ) return Channels[channel].Users.ToArray();
+				else return new string[]{};
+			}
 		}
 
 		public void Join( string channel ) {
