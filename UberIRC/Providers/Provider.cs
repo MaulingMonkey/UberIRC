@@ -13,5 +13,7 @@ namespace UberIRC.Providers {
 
 		public virtual IEnumerable< KeyValuePair<String,Command> > Commands  { get { yield break; } }
 		public virtual IEnumerable< KeyValuePair<Keys  ,Action > > Shortcuts { get { yield break; } }
+
+		public virtual void OnChannelCreated( IrcView view, IrcView.Channel channel ) {}
 	}
 }

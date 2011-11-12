@@ -58,8 +58,8 @@ namespace UberIRC {
 		}
 
 		private void AddPattern( string desc, string pattern, TextStyle style ) {
+			var view = CurrentView;
 			Begin(()=>{
-				var view = CurrentView;
 				if ( view == null ) return;
 
 				lock ( view.NuhFilters ) if ( pattern == "" ) {
@@ -77,8 +77,8 @@ namespace UberIRC {
 		}
 
 		private void RemovePattern( string desc, string pattern, params TextStyle[] styles ) {
+			var view = CurrentView;
 			Begin(()=>{
-				var view = CurrentView;
 				if ( view == null ) return;
 
 				lock ( view.NuhFilters ) if ( view.NuhFilters.RemoveAll(f=>f.Pattern==pattern&&styles.Any(s=>f.Style==s))>0 ) {

@@ -46,6 +46,9 @@ namespace UberIRC {
 			AddHistory( channel, person?"PERSON":"CHANNEL", "", id.Channel, normal );
 			Views.Add( id, channel );
 			if ( CurrentView == null ) CurrentView = channel;
+
+			Settings.OnChannelCreated( this, channel );
+
 			return channel;
 		}
 	}

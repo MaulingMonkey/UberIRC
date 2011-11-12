@@ -54,6 +54,10 @@ namespace UberIRC {
 			foreach ( var provider in Providers ) foreach ( var shortcut in provider.Shortcuts ) yield return shortcut;
 		}}
 
+		public void OnChannelCreated( IrcView view, IrcView.Channel channel ) {
+			foreach ( var provider in Providers ) provider.OnChannelCreated(view,channel);
+		}
+
 		public Server DefaultServerSettings { get; private set; }
 
 		Dictionary<string,Keys> AltKeyNames = new Dictionary<string,Keys>()

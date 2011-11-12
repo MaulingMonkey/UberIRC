@@ -123,13 +123,16 @@ namespace UberIRC {
 				});
 		}
 
-		void OnEnter() {
-			if ( CurrentView == null ) return;
+		public void ExecuteOn( Channel channel, string command ) {
+			Begin(()=>{
+				var oldview = CurrentView;
+				CurrentView = channel;
+				DoHandleBuffer(command);
+				CurrentView = oldview;
+			});
+		}
 
-			var torun = CurrentView.Input.Text;
-			if ( torun.Length == 0 ) return; // don't send empty messages
-			CurrentView.Input.Text = "";
-
+		void DoHandleBuffer( string torun ) {
 			foreach ( var line in torun.Split( new[] { "\r\n", "\n\r", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries ) )
 			if ( line.StartsWith("/ ") )
 			{
@@ -164,6 +167,16 @@ namespace UberIRC {
 				// not a command, just text
 				SendMessage(line);
 			}
+		}
+
+		void OnEnter() {
+			if ( CurrentView == null ) return;
+
+			var torun = CurrentView.Input.Text;
+			if ( torun.Length == 0 ) return; // don't send empty messages
+			CurrentView.Input.Text = "";
+
+			DoHandleBuffer( torun );
 		}
 
 		void Join( string url ) {

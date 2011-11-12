@@ -46,6 +46,7 @@
     <Compile Include="Delegates.cs" />
     <Compile Include="NET\Exceptions.cs" />
     <Compile Include="NET\IEventListener.cs" />
+    <Compile Include="Providers\AutoPerformProvider.cs" />
     <Compile Include="Providers\PasteProvider.cs" />
     <Compile Include="Providers\Provider.cs" />
     <Compile Include="Providers\ReloadSettingsProvider.cs" />
