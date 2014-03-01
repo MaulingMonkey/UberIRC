@@ -82,12 +82,11 @@ namespace UberIRC.NET {
 							var code       = match.Groups[2].Value;
 							var target     = match.Groups[3].Value;
 							var parameters = match.Groups[4].Value;
-							if (serverIdent == null) serverIdent = sender;
 
-							if ( target != "*" && code != "433" ) ActualNickname=target; // Perhaps we should do this only on code=="001" (welcome) instead?  We seem to get confirmation NICKs from the server for everything but the initial login NICK
-							
 							switch (code) {
 							case "001": // Welcome
+								serverIdent		= sender;
+								ActualNickname	= target;
 								Registered = true;
 								Send("JOIN "+string.Join(",",TargetChannels.Select(channel=>channel.StartsWith("#")?channel:"#"+channel).ToArray()));
 								break;
