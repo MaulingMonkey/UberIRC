@@ -69,6 +69,7 @@ namespace UberIRC.NET {
 					}
 
 					var s = Encoding.GetString(buffer, begin, end-begin).TrimEnd( new[]{'\r','\n'} );
+					foreach ( var l in Listeners ) l.OnRawRecv( this, s );
 
 					//if (OnRecieve != null) OnRecieve(s);
 					Match match;

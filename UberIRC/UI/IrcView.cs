@@ -46,13 +46,13 @@ namespace UberIRC {
 		}
 
 		public IrcView( Settings settings ) {
-			Settings = settings;
-			Settings.Inject(this);
-
 			Views = new Dictionary<IrcChannelID,Channel>();
 
 			irc = new Irc(settings);
 			irc.Listeners.Add(this);
+
+			Settings = settings;
+			Settings.Inject(this);
 
 			cursorblink = new Timer() { Interval = 500 };
 			cursorblink.Tick += (o,args) => { cursor = !cursor; if ( CurrentView != null ) Invalidate( CurrentView.Input.Bounds ); };

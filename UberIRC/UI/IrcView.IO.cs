@@ -16,6 +16,8 @@ namespace UberIRC {
 	public partial class IrcView : NET.IEventListener {
 		[Owns] Irc irc;
 
+		public HashSet<NET.IEventListener> IrcListeners { get { return irc.Listeners; }}
+
 		void Begin( Action a ) {
 			try {
 				BeginInvoke(a);
@@ -259,6 +261,16 @@ namespace UberIRC {
 			});
 		}
 
+		public void OnRawRecv( IrcConnection connection, string rawline ) {
+			Begin(()=>{
+				var view = ViewOf( connection, null, "Raw" );
+				if ( view==null ) return;
+
+				AddHistory( view, "", Timestamp, rawline, system );
+				if ( view == CurrentView ) Invalidate();
+			});
+		}
+
 		public void OnJoin(IrcConnection connection, Irc.Actor who, string channel) {
 			Begin(()=>{
 				var view = ViewOf(connection,who,channel);
@@ -368,9 +380,9 @@ namespace UberIRC {
 
 				Match m;
 				if ( (m=new Regex("\u0001ACTION (?'action'.+)\u0001").Match(message)).Success ) {
-					AddHistory( view, who.Nickname, Timestamp, m.Groups["action"].Value, style );
+					AddPrettyHistory( view, who.Nickname, Timestamp, m.Groups["action"].Value, style );
 				} else {
-					AddHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
+					AddPrettyHistory( view, "<"+who.Nickname+">", Timestamp, message, style );
 				}
 
 				Invalidate();
@@ -432,7 +444,17 @@ namespace UberIRC {
 		public void OnConnectionError( IrcConnection connection, Exception e ) {
 			Begin(()=>{
 				var view = ViewOf(connection,null,"Error Log");
-				AddHistory( view, "Exception"    , Timestamp, e.GetType().Name + " thrown handling of connection", alerted );
+				AddHistory( view, "Exception"    , Timestamp, e.GetType().Name + " thrown handling connection", alerted );
+				AddHistory( view, "Message"      , Timestamp, e.Message   , normal );
+				AddHistory( view, "Backtrace"    , Timestamp, e.StackTrace, normal );
+			});
+		}
+
+		public void OnProviderError( string whathandled, Exception e )
+		{
+			Begin(()=>{
+				var view = ViewOf(null,null,"Error Log");
+				AddHistory( view, "Exception"    , Timestamp, e.GetType().Name + " thrown handling "+whathandled, alerted );
 				AddHistory( view, "Message"      , Timestamp, e.Message   , normal );
 				AddHistory( view, "Backtrace"    , Timestamp, e.StackTrace, normal );
 			});

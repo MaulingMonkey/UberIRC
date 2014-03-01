@@ -8,12 +8,23 @@ using System.Windows.Forms;
 
 namespace UberIRC.Providers {
 	abstract class Provider {
-		public Settings Settings;
-		public IrcView  View;
+		IrcView _view;
+
+		public virtual Settings Settings { get; set; }
+		public virtual IrcView  View { get {
+			return _view;
+		} set {
+			if( _view == value ) return;
+			if( _view != null ) OnIrcViewDisconnected(_view);
+			_view = value;
+			if( _view != null ) OnIrcViewConnected(_view);
+		}}
 
 		public virtual IEnumerable< KeyValuePair<String,Command> > Commands  { get { yield break; } }
 		public virtual IEnumerable< KeyValuePair<Keys  ,Action > > Shortcuts { get { yield break; } }
 
+		public virtual void OnIrcViewConnected   ( IrcView view ) { var el = this as NET.IEventListener; if( el != null ) view.IrcListeners.Add(el); }
+		public virtual void OnIrcViewDisconnected( IrcView view ) { var el = this as NET.IEventListener; if( el != null ) view.IrcListeners.Remove(el); }
 		public virtual void OnChannelCreated( IrcView view, IrcView.Channel channel ) {}
 	}
 }
