@@ -16,7 +16,7 @@ namespace UberIRC {
 		string[] CachedNickList;
 
 		void UpdateCache() {
-			var nicks = SelectedChannel.ID.Connection.WhosIn(SelectedChannel.ID.Channel).OrderBy( cui => cui.Nick ).OrderBy( cui => "@+% ".IndexOf( cui.Sigil ) ).Select( cui => cui.Sigil + cui.Nick ).ToArray();
+			var nicks = SelectedChannel.ID.Connection.WhosIn(SelectedChannel.ID.Channel).OrderBy( cui => cui.Nick ).OrderBy( cui => "@%+ ".IndexOf( cui.Sigil ) ).Select( cui => cui.Sigil + cui.Nick ).ToArray();
 			if ( CachedNickList!=null && nicks.SequenceEqual(CachedNickList) ) return;
 
 			using ( Cache ) Cache = null;
