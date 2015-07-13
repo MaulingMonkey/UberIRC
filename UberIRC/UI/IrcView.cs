@@ -204,7 +204,7 @@ namespace UberIRC {
 
 		void AttemptTabComplete() {
 			if ( CurrentView == null ) return;
-			var nicks = CurrentView.ID.Connection.WhosIn(CurrentView.ID.Channel);
+			var nicks = CurrentView.ID.Connection.WhosIn(CurrentView.ID.Channel).Select(cui=>cui.Nick);
 
 			var input = CurrentView.Input.Text;
 			var lastspace = input.LastIndexOf(' ');

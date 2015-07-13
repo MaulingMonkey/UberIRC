@@ -70,8 +70,19 @@ namespace UberIRC.NET {
 			public event Action OnResolveHostname = null;
 		}
 
+		public class ChannelUserInfo {
+			public string Sigil = " ";
+			public string Nick  = null;
+
+			public ChannelUserInfo( string sigil, string nick )
+			{
+				Sigil	= sigil;
+				Nick	= nick;
+			}
+		}
+
 		class Channel {
-			public readonly HashSet<String> Users = new HashSet<String>();
+			public readonly Dictionary<String,ChannelUserInfo> Users = new Dictionary<String,ChannelUserInfo>();
 		}
 
 		public void Dispose() {
@@ -133,10 +144,10 @@ namespace UberIRC.NET {
 
 		public readonly HashSet<IEventListener> Listeners;
 
-		public IEnumerable<String> WhosIn( string channel ) {
+		public IEnumerable<ChannelUserInfo> WhosIn( string channel ) {
 			lock (Lock) {
-				if ( Channels.ContainsKey(channel) ) return Channels[channel].Users.ToArray();
-				else return new string[]{};
+				if ( Channels.ContainsKey(channel) ) return Channels[channel].Users.Values.ToArray();
+				else return new ChannelUserInfo[]{};
 			}
 		}
 

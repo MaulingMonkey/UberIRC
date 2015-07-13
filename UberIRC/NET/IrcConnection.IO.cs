@@ -125,19 +125,26 @@ namespace UberIRC.NET {
 									var nicks       = match.Groups["nicks"].Value.Split(new[]{' '},StringSplitOptions.RemoveEmptyEntries);
 									
 									foreach ( string nick_ in nicks ) {
+										string sigil;
 										string nick;
 										switch ( nick_[0] ) {
 										case '@':
 										case '%':
 										case '+':
+											sigil = nick_.Substring(0,1);
 											nick = nick_.Substring(1);
 											break;
 										default:
+											sigil = " ";
 											nick = nick_;
 											break;
 										}
 										
-										channel.Users.Add( nick );
+										if( !channel.Users.ContainsKey(nick) )
+											channel.Users.Add( nick, new ChannelUserInfo( sigil, nick ) );
+										else
+											channel.Users[nick] = new ChannelUserInfo( sigil, nick );
+
 										if (!Users.ContainsKey(nick)) Users.Add(nick,new User());
 									}
 								}
@@ -184,17 +191,27 @@ namespace UberIRC.NET {
 									}
 
 									foreach ( var channel in Channels )
-									if ( channel.Value.Users.Contains(nick) )
 									{
-										channel.Value.Users.Remove(nick);
-										channel.Value.Users.Add(newnick);
-										foreach ( var l in Listeners ) l.OnNick( this, actor, channel.Key, newnick );
+										var users = channel.Value.Users;
+										if ( users.ContainsKey(nick) )
+										{
+											var channelUser = users[nick];
+											channelUser.Nick = newnick;
+											users.Remove(nick);
+											users.Add(newnick,channelUser);
+											foreach ( var l in Listeners ) l.OnNick( this, actor, channel.Key, newnick );
+										}
 									}
 									break;
 								} case "JOIN": {
 									var channel = ReadParam(ref param);
 									if ( nick == ActualNickname ) AddChannel(channel); // we joined a channel!
-									if ( Channels.ContainsKey(channel) ) Channels[channel].Users.Add(nick);
+									if ( Channels.ContainsKey(channel) )
+									{
+										var users = Channels[ channel ].Users;
+										if ( !users.ContainsKey( nick ) )
+											users.Add(nick, new ChannelUserInfo( " ", nick ) );
+									}
 									foreach ( var l in Listeners ) l.OnJoin( this, actor, channel );
 									break;
 								} case "PART": {
@@ -208,7 +225,7 @@ namespace UberIRC.NET {
 
 									foreach ( var l in Listeners )
 									foreach ( var channel in Channels )
-									if ( channel.Value.Users.Contains(nick) )
+									if ( channel.Value.Users.ContainsKey(nick) )
 									{
 										channel.Value.Users.Remove(nick);
 										l.OnQuit( this, actor, channel.Key, message );
