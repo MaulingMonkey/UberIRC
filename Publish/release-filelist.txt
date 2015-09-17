@@ -1,0 +1,3 @@
+../UberIrc/Bin/Release/*.dll
+../UberIrc/Bin/Release/UberIRC.exe
+../UberIrc/Bin/Release/*.pdb

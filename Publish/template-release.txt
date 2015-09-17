@@ -1,0 +1,7 @@
+{
+	"tag_name":		"REPLACE_WITH_TAG_NAME",
+	"name":			"REPLACE_WITH_TAG_NAME",
+	"body":			"",
+	"draft":		false,
+	"prerelease":	true
+}
