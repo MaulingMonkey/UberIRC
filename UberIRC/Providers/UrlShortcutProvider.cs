@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Xml;
 
 namespace UberIRC.Providers {
+	[ProviderConfig( Enabled=true )]
 	class UrlShortcutProvider : Provider {
 		// <url shortcut="Ctrl+L" url="http://logs.pandamojo.com/" />
 

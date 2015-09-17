@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Xml;
 
 namespace UberIRC.Providers {
+	[ProviderConfig( Enabled=true )]
 	class ReloadSettingsProvider : Provider {
 		// <reload shortcut="F5" />
 

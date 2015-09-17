@@ -6,6 +6,7 @@ using System;
 using System.Xml;
 
 namespace UberIRC.Providers {
+	[ProviderConfig( Enabled=true )]
 	class AutoPerformProvider : Provider {
 		// <autoperform new_channel="/action" />
 

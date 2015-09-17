@@ -4,9 +4,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace UberIRC.Providers {
+	[AttributeUsage( AttributeTargets.Class )]
+	class ProviderConfigAttribute : Attribute {
+		public ProviderConfigAttribute( ) { }
+
+		public bool Enabled = false;
+
+		public static readonly ProviderConfigAttribute Default = new ProviderConfigAttribute( );
+
+		public static ProviderConfigAttribute For( Type t ) {
+			Debug.Assert( t.IsSubclassOf(typeof(Provider)) );
+			var matching = t.GetCustomAttributes( typeof(ProviderConfigAttribute), true ).Cast<ProviderConfigAttribute>( ).ToArray( );
+			Debug.Assert( matching.Length <= 1 );
+			return matching.Length > 0 ? matching[0] : Default;
+		}
+	}
+
 	abstract class Provider {
 		IrcView _view;
 

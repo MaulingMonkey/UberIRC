@@ -39,6 +39,7 @@ namespace UberIRC {
 		Provider[] Providers = Assembly.GetExecutingAssembly()
 			.GetTypes()
 			.Where(t=>t.IsSubclassOf(typeof(Provider)))
+			.Where(t=>ProviderConfigAttribute.For(t).Enabled)
 			.Select(t=>t.GetConstructor(Type.EmptyTypes).Invoke(null) as Provider)
 			.ToArray()
 			;

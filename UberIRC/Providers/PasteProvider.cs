@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Xml;
 
 namespace UberIRC.Providers {
+	[ProviderConfig( Enabled=true )]
 	class PasteProvider : Provider {
 		//<paste shortcut="Ctrl+Shift+V">
 		//    <text lang="C#"  to="http://gamedev.pastebin.com/pastebin.php" post="paste=Send poster={poster} expiry=m format=csharp code2={code}" scrape="&lt;li class=&quot;highlight&quot;&gt;&lt;a href=&quot;(.+)&quot;&gt;.+&lt;/a&gt;&lt;br/&gt;\d+ sec ago&lt;/li&gt;" />

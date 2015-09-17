@@ -29,6 +29,7 @@ namespace UberIRC.Providers
 		}
 	}
 
+	[ProviderConfig( Enabled=false )]
 	class TorDetectionProvider : Provider, NET.IEventListener
 	{
 		static string LocalTorCsvPath { get { return Path.Combine(Application.UserAppDataPath,"tor.csv"); }}

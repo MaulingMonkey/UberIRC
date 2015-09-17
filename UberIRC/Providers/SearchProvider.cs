@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Xml;
 
 namespace UberIRC.Providers {
+	[ProviderConfig( Enabled=true )]
 	class SearchProvider : Provider {
 		// <search command="/google" say="google {0}" emote="googles {0}" url="http://www.google.com/search?q={0}" />
 
