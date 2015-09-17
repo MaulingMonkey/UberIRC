@@ -1,5 +1,9 @@
 C# IRC Client.  I should probably rename it after someone started a network with the same name - I was here first though ;)
 
+# Downloads
+
+[Official Releases](https://github.com/MaulingMonkey/uberirc/releases)
+
 # Features
 
 * /semiignore Disables highlighting and reducing text visibility of people who are annoying, but not worth banning.
