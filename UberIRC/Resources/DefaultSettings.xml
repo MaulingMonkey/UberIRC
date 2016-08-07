@@ -23,6 +23,7 @@
 	-->
 
 	<search command="/google" url="http://www.google.com/search?q={0}" />
+	<quote command="/quote" />
 	
 	<defaults nick="UberGuest" user="uberirc" />
 	<server name="AfterNet" url ="irc.afternet.org" nick="Guest" user="uberirc" auto="connect,reconnect">

@@ -244,11 +244,19 @@ namespace UberIRC {
 			CurrentView.ID.Connection.Send( "INVITE "+nick+" "+channel );
 		}
 
+		void SendRaw( string line ) {
+			OnPrivMsg( CurrentView.ID.Connection, new Irc.Actor() { Nickname = CurrentView.ID.Connection.ActualNickname, Hostname = "???", Username = "???" }, CurrentView.ID.Channel, line );
+			CurrentView.ID.Connection.Send(line);
+		}
+
 		public void BeginTrySendMessage( string line ) {
 			Begin( () => { if ( CurrentView!=null ) SendMessage(line); } );
 		}
 		public void BeginTrySendAction( string line ) {
 			Begin( () => { if ( CurrentView!=null ) SendAction(line); } );
+		}
+		public void BeginTrySendRaw( string line ) {
+			Begin( () => { if ( CurrentView!=null ) SendRaw(line); } );
 		}
 
 		public void OnChannelModeChange(IrcConnection connection, Irc.Actor op, string channel, string mode, string param) {
