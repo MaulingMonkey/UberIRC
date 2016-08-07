@@ -44,6 +44,7 @@ else
 	# Cleanup & Sync
 	rm tmp-*.txt
 	git fetch github ${VERSION}
+	explorer https://github.com/MaulingMonkey/uberirc/releases
 fi
 
 popd
